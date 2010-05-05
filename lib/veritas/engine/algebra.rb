@@ -20,6 +20,12 @@ module Veritas
         relations.inject(nil){|memo,r| memo.nil? ? r : memo.union(r)}
       end
     
+      # Makes the n-ary join of relations
+      def join(*relations)
+        relations.all?{|r| is_relation!(r)}
+        relations.inject(nil){|memo,r| memo.nil? ? r : memo.join(r)}
+      end
+    
     end # module Algebra
   end # module Engine
 end # module Veritas
