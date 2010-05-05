@@ -1,7 +1,4 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'veritas'
-require 'veritas/engine'
-include ::Veritas::Engine
+require File.expand_path('../commons', __FILE__)
 
 suppliers = Relation(:'S#' => String, :SNAME => String, :CITY => String) {[
   {:'S#' => 'S1', :SNAME => 'Smith', :STATUS => 20, :CITY => 'London'},
