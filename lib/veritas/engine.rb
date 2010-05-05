@@ -15,5 +15,6 @@ module Veritas
       puts (is_relation?(value) ? value.to_tutorial_d : value.inspect)
     end
     
+    extend Engine
   end # module Engine
 end # module Veritas

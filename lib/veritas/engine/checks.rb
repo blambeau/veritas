@@ -53,8 +53,16 @@ module Veritas
       
       # Checks that an array contains tuples conforming a heading only
       def valid_relation_literal!(heading, tuples, raise_on_error = true)
-        return tuples if Array === tuples and tuples.all?{|t| valid_tuple_literal?(heading, t)}
-        raise_on_error ? raise(::Veritas::RelationMismatchError, "Invalid relation literal #{tuples}", caller) : false
+        if Array === tuples
+          invalid = tuples.find{|t| !valid_tuple_literal?(heading, t)}
+          if invalid
+            raise_on_error ? raise(::Veritas::RelationMismatchError, "Invalid tuple #{invalid.inspect} for heading #{heading}", caller) : false
+          else
+            tuples
+          end
+        else
+          raise_on_error ? raise(::Veritas::RelationMismatchError, "Invalid relation literal #{tuples.inspect}", caller) : false  
+        end
       end
       
     end # module Checks

@@ -1,5 +1,8 @@
 require File.expand_path('../commons', __FILE__)
 
+###############################################################################
+# 1) Relation literals as array of Ruby hashes
+###############################################################################
 # At first glance, a relation looks like an array of hashes:
 [
   {:NAME => 'London'},
@@ -14,8 +17,10 @@ cities = Relation(:NAME => String){[
   {:NAME => 'Paris'},
   {:NAME => 'Bruxelles'}
 ]}
-#(debug cities)
 
+###############################################################################
+# 2) A relation is a SET ... and sets do not contain duplicates!
+###############################################################################
 # At first glance only! Unlike an array, a relation is mathematically defined
 # as a SET of tuples and, by definition, it never contains duplicates:
 assert_equal 4, [
@@ -34,6 +39,18 @@ assert_equal 3, Relation(:NAME => String){[
 # sense to write relation literals containing duplicates, but Veritas is friendly
 # and removes duplicates instead of raising an error!
 
+###############################################################################
+# 3) A relation is a SET ... and sets are not ordered
+###############################################################################
+# At first glance only! Unlike an array, a relation is not ordered, it's just
+# a set of tuples... So the following relations are equal:
+c1 = Relation(:NAME => String){[{:NAME => 'London'}, {:NAME => 'Paris'}]}
+c2 = Relation(:NAME => String){[{:NAME => 'Paris'}, {:NAME => 'London'}]}
+(assert_equal c1, c2)
+
+###############################################################################
+# 4) A relation has a heading ... and that heading is typed
+###############################################################################
 # At first glance! A relation is also typed, by definition! Therefore, unlike
 # arrays, a relation may not contain tuples not conforming to its heading:
 assert_raise RelationMismatchError do
@@ -52,6 +69,9 @@ assert_raise RelationMismatchError do
   ]}
 end
 
+###############################################################################
+# 5) A relation contains values ... and NULL is not a value
+###############################################################################
 # Also, NULL values lead to a lot of mathematical inconsistencies so that NULL
 # values are not accepted inside relations...
 assert_raise RelationMismatchError do
@@ -61,9 +81,12 @@ assert_raise RelationMismatchError do
 end
 ### What about the NULL/NIL debate inside Veritas??
 
-# Last, but not least, there are two (not-so) special relations: TABLE_DEE and TABLE_DUM.
-# Both have an empty heading (no attribute at all), the former having exactly one tuple 
-# and the later having no tuple at all:
+###############################################################################
+# 5) Relations and tuples are sets ... and empty sets exist
+###############################################################################
+# Last, but not least, there are two (not-so) special relations: TABLE_DEE and 
+# TABLE_DUM. Both have an empty heading (no attribute at all), the former having 
+# exactly one tuple  and the later having no tuple at all:
 assert_equal TABLE_DEE, Relation(){ [ {} ] }
 assert_equal TABLE_DUM, Relation(){}
 
