@@ -13,8 +13,9 @@ module Veritas
       #
       def relation(header_hash, tuples = nil)
         header = valid_header!(header_hash)
+        tuples = valid_relation_literal!(header, tuples || (block_given? ? yield : []) || [])
         attributes = header.collect{|a| a.name}
-        tuples = (tuples || yield).collect{|t| t.values_at(*attributes)}.uniq
+        tuples = tuples.collect{|t| t.values_at(*attributes)}.uniq
         ::Veritas::Relation.new(header, tuples)
       end
       alias :Relation :relation

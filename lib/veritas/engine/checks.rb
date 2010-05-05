@@ -18,7 +18,6 @@ module Veritas
       end
       def valid_header?(arg) !!valid_header(arg, false) end
       
-      
       # Checks if _arg_ is a valid relation or raises an ArgumentError.
       def is_relation!(arg, raise_on_error = true)
         return arg if ::Veritas::Relation === arg
@@ -40,6 +39,22 @@ module Veritas
         return arg if Array===arg && arg.all?{|s| is_attribute_name?(s)}
         raise ArgumentError, "Invalid attribute names #{arg.inspect}", caller if raise_on_error
         false
+      end
+      
+      # Checks that a tuple literal (a ruby Hash) conforms to a given heading
+      def valid_tuple_literal!(heading, tuple, raise_on_error = true)
+        if Hash===tuple and tuple.size == heading.to_ary.size
+          ok = heading.all?{|a| tuple.key?(a.name) and a.valid_value?(tuple[a.name])}
+          return tuple if ok
+        end
+        raise_on_error ? raise(ArgumentError, "Invalid tuple #{tuple} for #{heading}", caller) : false
+      end
+      def valid_tuple_literal?(heading, tuple) valid_tuple_literal!(heading, tuple, false); end
+      
+      # Checks that an array contains tuples conforming a heading only
+      def valid_relation_literal!(heading, tuples, raise_on_error = true)
+        return tuples if Array === tuples and tuples.all?{|t| valid_tuple_literal?(heading, t)}
+        raise_on_error ? raise(::Veritas::RelationMismatchError, "Invalid relation literal #{tuples}", caller) : false
       end
       
     end # module Checks
