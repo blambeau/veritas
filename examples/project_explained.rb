@@ -53,3 +53,34 @@ expected = Relation(:CITY => String){[
 
 # Otherwise, it leads to TABLE_DUM
 (assert_equal TABLE_DUM, (project Relation(SUPPLIERS.header){}))
+
+###############################################################################
+# 5) Logic and projections
+###############################################################################
+# Why some strange projection constructions? Two main reasons: 
+# 1) projecting over no attribute is required for mathematical soundness of the 
+#    theory...
+# 2) TABLE_DEE and TABLE_DUM can be seen as the truth values of the relational
+#    algebra:
+#
+# The relational algebra is rooted in first order logic. Following the "closed 
+# world assumption" (tuples inside the database are known facts considered true,
+# missing tuples are considered false, and relational algebra is the fact 
+# derivation mechanism), the query below can be rephrased as "Is there any supplier 
+# in the database?"
+#
+(project SUPPLIERS)
+#
+# The answer is true (TABLE_DEE) if there is at least on tuple in the suppliers
+# relation (variable), false (TABLE_DUM) otherwise!
+#
+# In other words, the following constructs (not allowed by Veritas so far) are
+# equivalent:
+#
+# SUPPLIERS.empty? == (SUPPLIERS.size==0) == (TABLE_DUM == (project SUPPLIERS))
+
+# Is there any suppliers living Oslo? NO -> TABLE_DUM
+assert_equal TABLE_DUM, (project SUPPLIERS.restrict{|t| t[:CITY].eq('Oslo')})
+
+# Is there any suppliers living London? YES -> TABLE_DEE
+assert_equal TABLE_DEE, (project SUPPLIERS.restrict{|t| t[:CITY].eq('London')})
