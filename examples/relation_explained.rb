@@ -61,3 +61,9 @@ assert_raise RelationMismatchError do
 end
 ### What about the NULL/NIL debate inside Veritas??
 
+# Last, but not least, there are two (not-so) special relations: TABLE_DEE and TABLE_DUM.
+# Both have an empty heading (no attribute at all), the former having exactly one tuple 
+# and the later having no tuple at all:
+assert_equal TABLE_DEE, Relation(){ [ {} ] }
+assert_equal TABLE_DUM, Relation(){}
+
