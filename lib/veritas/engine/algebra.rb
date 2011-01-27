@@ -25,6 +25,22 @@ module Veritas
         relations.all?{|r| is_relation!(r)}
         relations.inject(nil){|memo,r| memo.nil? ? r : memo.join(r)}
       end
+      
+      def summarize_by(relation, by, adds)
+        relation.summarize(by){|r|
+          adds.each_pair{|name, agg|
+            r.add(name, &agg)
+          }
+        }
+      end
+      
+      def count(*args)
+        lambda{|memo,t| memo.nil? ? 0 : memo + 1}
+      end
+      
+      def sum(attribute)
+        lambda{|memo,t| memo.nil? ? 0 : memo + t[attribute]}
+      end
     
     end # module Algebra
   end # module Engine
