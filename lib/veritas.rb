@@ -27,6 +27,8 @@ require 'veritas/attribute'
 require 'veritas/tuple'
 require 'veritas/version'
 
+require 'veritas/physical'
+
 module Veritas
 
   # Raised when the headers are invalid for Join and Product
