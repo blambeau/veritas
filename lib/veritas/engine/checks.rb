@@ -11,7 +11,7 @@ module Veritas
             ::Veritas::Relation::Header.coerce(arg)
           when Hash
             if arg.keys.all?{|k| k.is_a?(Symbol)} &&
-               arg.values.all?{|k| k.is_a?(Class)}
+               arg.values.all?{|v| v.is_a?(Class)}
               ::Veritas::Relation::Header.coerce(arg.to_a.sort{|a1, a2| a1[0].to_s <=> a2[0].to_s})
             else
               raise ArgumentError, "Invalid relation header #{arg}", caller if raise_on_error

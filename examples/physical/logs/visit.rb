@@ -121,4 +121,6 @@ q = (rename Hash[:count => :nb_hits, :time => :min_time],
           (project :user_agent,
             (restrict LOGS, ->(t){ t[:path].match(/robots.txt/) }))),
         Hash[:count => (count '*'), :time => (min :timestamp), :weight => (sum :bytes_sent)]))
-puts QueryToDot.visit(q).to_dot
+q = (restrict q, ->(t){ t[:path].eq('/') })
+#puts QueryToDot.visit(q).to_dot
+puts QueryToDot.visit(q.optimize).to_dot
