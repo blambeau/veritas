@@ -1,8 +1,4 @@
-require File.expand_path('../../../commons', __FILE__)
-require 'veritas/physical/logs'
-
-file = File.expand_path('../access.log', __FILE__)
-LOGS = Veritas::Physical::Logs.new(file, [:apache, :combined])
+require File.expand_path('../commons', __FILE__)
 
 # How many hits per page ??
 (debug (summarize LOGS, :path, :count => (count '*')))
@@ -29,5 +25,8 @@ ROBOT_REQUESTERS = (project (restrict LOGS, ->(t){ t[:path].match(/robots.txt/) 
 INTERESTING_LOGS = (minus LOGS, (join LOGS, ROBOT_REQUESTERS))
 
 # How many hits per page, not counting robots ??
-(debug (summarize INTERESTING_LOGS, :path, :count => (count '*')))
+(debug (summarize INTERESTING_LOGS, :path, 
+        :count    => (count '*'), 
+        :min_time => (min :timestamp),
+        :weight   => (sum :bytes_sent)))
 
