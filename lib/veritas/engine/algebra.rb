@@ -35,7 +35,7 @@ module Veritas
       end
       
       def count(*args)
-        lambda{|memo,t| memo.nil? ? 0 : memo + 1}
+        lambda{|memo,t| memo.nil? ? 1 : memo + 1}
       end
       
       def sum(attribute)
