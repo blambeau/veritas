@@ -18,6 +18,19 @@ cities = Relation(:NAME => String){[
   {:NAME => 'Bruxelles'}
 ]}
 
+# Veritas allows different kind of literals
+(relation (heading :NAME => String),
+          (tuple   :NAME => 'London'),
+          (tuple   :NAME => 'Paris'),
+          (tuple   :NAME => 'Bruxelles'))
+
+expected  = Relation(:NAME => String){[ {:NAME => 'London'} ]}
+(assert_equal expected, (relation (tuple :NAME => 'London')))
+(assert_equal expected, (relation :NAME => 'London'))
+(assert_equal \
+  (relation (tuple :NAME => 'London')),
+  (relation :NAME => 'London'))
+
 ###############################################################################
 # 2) A relation is a SET ... and sets do not contain duplicates!
 ###############################################################################

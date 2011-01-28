@@ -10,13 +10,17 @@ module Veritas
           when Array
             ::Veritas::Relation::Header.coerce(arg)
           when Hash
-            ::Veritas::Relation::Header.coerce(arg.to_a.sort{|a1, a2| a1[0].to_s <=> a2[0].to_s})
+            if arg.keys.all?{|k| k.is_a?(Symbol)} &&
+               arg.values.all?{|k| k.is_a?(Class)}
+              ::Veritas::Relation::Header.coerce(arg.to_a.sort{|a1, a2| a1[0].to_s <=> a2[0].to_s})
+            else
+              raise ArgumentError, "Invalid relation header #{arg}", caller if raise_on_error
+            end
           else
             raise ArgumentError, "Invalid relation header #{arg}", caller if raise_on_error
-            nil
         end
       end
-      def valid_header?(arg) !!valid_header(arg, false) end
+      def valid_header?(arg) !!valid_header!(arg, false) end
       
       # Checks if _arg_ is a valid relation or raises an ArgumentError.
       def is_relation!(arg, raise_on_error = true)
