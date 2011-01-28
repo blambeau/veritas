@@ -26,12 +26,29 @@ module Veritas
         relations.inject(nil){|memo,r| memo.nil? ? r : memo.join(r)}
       end
       
-      def summarize_by(relation, by, adds)
-        relation.summarize(by){|r|
-          adds.each_pair{|name, agg|
-            r.add(name, &agg)
-          }
-        }
+      def minus(*relations)
+        relations.all?{|r| is_relation!(r)}
+        relations.inject(nil){|memo,r| memo.nil? ? r : memo.difference(r)}
+      end
+      
+      # Makes a relation restriction
+      def restrict(relation, where)
+        is_relation!(relation)
+        relation.restrict(&where)
+      end
+      
+      def summarize(relation, by, adds)
+        is_relation!(relation)
+        case by
+          when Veritas::Relation
+            relation.summarize(by){|r|
+              adds.each_pair{|name, agg| r.add(name, &agg) }
+            }
+          when Array
+            summarize(relation, relation.project(by), adds)
+          when Symbol
+            summarize(relation, [ by ], adds)
+        end
       end
       
       def count(*args)
