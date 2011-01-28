@@ -3,12 +3,14 @@ require 'veritas/engine/debug'
 require 'veritas/engine/checks'
 require 'veritas/engine/literals'
 require 'veritas/engine/algebra'
+require 'veritas/engine/aggregations'
 module Veritas
   module Engine
     include ::Test::Unit::Assertions
     include ::Veritas::Engine::Literals
     include ::Veritas::Engine::Checks
     include ::Veritas::Engine::Algebra
+    include ::Veritas::Engine::Aggregations
     
     # Debugs a (relation-)value
     def debug(value)
