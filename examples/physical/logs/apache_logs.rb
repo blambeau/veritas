@@ -2,7 +2,10 @@ require File.expand_path('../../../commons', __FILE__)
 require 'veritas/physical/logs'
 
 file = File.expand_path('../access.log', __FILE__)
-LOGS = Veritas::Physical::Logs.new(file, :apache, :combined)
+LOGS = Veritas::Physical::Logs.new(file, [:apache, :combined])
+
+# How many hits per page ??
+(debug (summarize LOGS, :path, :count => (count '*')))
 
 # What pages have not been found ??
 NOT_FOUND = (restrict LOGS, ->(t){ t[:http_status].eq(404) })
@@ -21,3 +24,10 @@ ROBOT_REQUESTERS = (project (restrict LOGS, ->(t){ t[:path].match(/robots.txt/) 
 
 # Which robots are not named 'bot' ??
 (debug (minus ROBOT_REQUESTERS, ROBOT_AGENTS))
+
+# What are logs if robots are not taken into account ??
+INTERESTING_LOGS = (minus LOGS, (join LOGS, ROBOT_REQUESTERS))
+
+# How many hits per page, not counting robots ??
+(debug (summarize INTERESTING_LOGS, :path, :count => (count '*')))
+
