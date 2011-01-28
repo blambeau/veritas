@@ -35,7 +35,15 @@ module Veritas
       end
       
       def initialize(files, file_format, line_def = :access)
-        file_format = RequestLogAnalyzer::FileFormat.load(file_format)
+        case file_format
+        when RequestLogAnalyzer::FileFormat
+        when Symbol
+          file_format = RequestLogAnalyzer::FileFormat.load(file_format)
+        when Array
+          file_format = RequestLogAnalyzer::FileFormat.load(*file_format)
+        else 
+          raise ArgumentError, "Invalid file format: #{file_format}"
+        end
         heading = infer_heading(file_format, line_def)
         super(heading, Decoder.new(files, file_format, heading))
       end
