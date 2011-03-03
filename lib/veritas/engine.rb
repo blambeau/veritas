@@ -1,9 +1,11 @@
 require 'test/unit/assertions'
+require 'veritas'
 require 'veritas/engine/debug'
 require 'veritas/engine/checks'
 require 'veritas/engine/literals'
 require 'veritas/engine/algebra'
 require 'veritas/engine/aggregations'
+require 'veritas/engine/veriparse'
 module Veritas
   module Engine
     include ::Test::Unit::Assertions

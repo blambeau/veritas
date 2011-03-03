@@ -1,0 +1,125 @@
+grammar Veritas::Engine::Veriparse
+
+  rule relation_expr
+    relation_allbut
+  | relation_intersect
+  | relation_join
+  | relation_minus
+  | relation_project
+  | relation_rename
+  | relation_union
+  | relation_ref
+  end
+
+  rule relation_expr_list
+    (head:relation_expr tail:(COMMA_SPACES z:relation_expr)*)       <Veritas::Engine::Ast::RelationExprList>
+  end
+  rule attribute_name_list
+    (head:ATTRIBUTE_NAME tail:(COMMA_SPACES last:ATTRIBUTE_NAME)*)  <Veritas::Engine::Ast::AttributeNameList>
+  end
+
+  ######################################################### relational expressions
+  
+  # (allbut XXX attr1, attr2)
+  rule relation_allbut
+    ('(' SPACING 'allbut' SPACES operand:relation_expr 
+      (SPACES attributes:attribute_name_list)? SPACING ')')         <Veritas::Engine::Ast::Allbut>
+  end
+  
+  # (intersect XXX YYY ZZZ)
+  rule relation_intersect
+    ('(' SPACING 'intersect' SPACES relation_expr_list SPACING ')') <Veritas::Engine::Ast::Intersect>
+  end
+  
+  # (join XXX YYY ZZZ)
+  rule relation_join
+    ('(' SPACING 'join' SPACES relation_expr_list SPACING ')')      <Veritas::Engine::Ast::Join>
+  end
+  
+  # (minus XXX YYY ZZZ)
+  rule relation_minus
+    '(' SPACING 'minus' SPACES relation_expr_list SPACING ')'       <Veritas::Engine::Ast::Minus>
+  end
+  
+  # (project XXX attr1, attr2)
+  rule relation_project
+    ('(' SPACING 'project' SPACES relation_expr 
+      (SPACES attribute_name_list)? SPACING ')')                    <Veritas::Engine::Ast::Project>
+  end
+  
+  # (rename XXX time: spent, sum: total)
+  rule relation_rename
+    ('(' SPACING 'rename' SPACES relation_expr 
+      SPACES renaming_list SPACING ')')                             <Veritas::Engine::Ast::Rename>
+  end
+  rule renaming_list
+    renaming_attr (COMMA_SPACES renaming_list)?
+  end
+  rule renaming_attr
+    ATTRIBUTE_NAME SPACING ':' SPACING ATTRIBUTE_NAME SPACING
+  end
+  
+  # (union XXX YYY ZZZ)
+  rule relation_union
+    '(' SPACING 'union' SPACES relation_expr_list SPACING ')'      <Veritas::Engine::Ast::Union>
+  end
+  
+  rule relation_ref
+    RELATION_NAME                                                  <Veritas::Engine::Ast::RelationRef>
+  end
+  
+  ######################################################### naming
+  rule RELATION_NAME
+    /[a-zA-Z][a-zA-Z0-9_]*/ { to_s.to_sym }
+  end
+  rule ATTRIBUTE_NAME
+    /[a-z][a-zA-Z0-9_]*/    { to_s.to_sym }
+  end
+
+  ######################################################### terminal expressions
+  rule termexpr
+    BOOLEAN | NUMERIC | STRING | LEXSYMBOL | MODULE
+  end
+
+  ######################################################### booleans
+  rule BOOLEAN
+    'true' | 'false'
+  end
+  
+  ######################################################### numerics
+  rule NUMERIC
+    FLOAT | INTEGER
+  end
+  rule FLOAT
+    /[+-]?[0-9]+([_][0-9]+)*\.[0-9]+([_][0-9]+)*/
+  end
+  rule INTEGER
+    /[+-]?[0-9]+([_][0-9]+)*/
+  end
+  
+  ######################################################### strings
+  rule STRING
+    DOUBLE_QUOTED_STRING | SINGLE_QUOTED_STRING
+  end
+  rule DOUBLE_QUOTED_STRING
+    /["](([\\]["]|[^"])*?)["]/
+  end
+  rule SINGLE_QUOTED_STRING
+    /['](([\\][']|[^'])*?)[']/
+  end
+  
+  ######################################################### vars, methods, modules
+  rule LEXSYMBOL
+    /[a-z][a-zA-Z0-9_]*[!?]?/
+  end
+  rule MODULE
+    /(::)?([A-Z][a-zA-Z0-9]*)(::[A-Z][a-zA-Z0-9]*)*/
+  end
+
+  ######################################################### SPACING
+  rule COMMA_SPACES (',' SPACING | SPACES) end
+  rule SPACE        [ \t\n\r]              end
+  rule SPACING      /[ \t\n\r]*/           end
+  rule SPACES       /[ \t\n\r]+/           end
+
+end
