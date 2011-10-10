@@ -1,11 +1,12 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Rename::Aliases#[]' do
+describe Algebra::Rename::Aliases, '#[]' do
   subject { object[attribute] }
 
-  let(:klass)     { Algebra::Rename::Aliases    }
-  let(:attribute) { Attribute::Integer.new(:id) }
-  let(:object)    { klass.new(aliases)          }
+  let(:attribute) { Attribute::Integer.new(:id)  }
+  let(:object)    { described_class.new(aliases) }
 
   context 'when attribute is not renamed' do
     let(:aliases) { {} }

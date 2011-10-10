@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'spec_helper'
 require File.expand_path('../../fixtures/classes', __FILE__)
 
@@ -6,6 +8,12 @@ shared_examples_for 'memoizes method' do
     subject
     instance = object.new
     instance.send(method).should equal(instance.send(method))
+  end
+
+  it 'creates a method that returns a frozen value' do
+    subject
+    instance = object.new
+    instance.send(method).should be_frozen
   end
 
   specification = proc do
@@ -17,12 +25,12 @@ shared_examples_for 'memoizes method' do
 
     file, line = object.new.send(method).first.split(':')[0, 2]
 
-    File.expand_path(file).should == File.expand_path('../../../../../../lib/veritas/support/immutable.rb', __FILE__)
-    line.to_i.should == 156
+    File.expand_path(file).should eql(File.expand_path('../../../../../../lib/veritas/support/immutable.rb', __FILE__))
+    line.to_i.should eql(185)
   end
 
   it 'sets the file and line number properly' do
-    if RUBY_PLATFORM[/java/]
+    if RUBY_PLATFORM.include?('java')
       pending('Kernel#caller returns the incorrect line number in JRuby', &specification)
     else
       instance_eval(&specification)
@@ -30,7 +38,7 @@ shared_examples_for 'memoizes method' do
   end
 end
 
-describe 'Veritas::Immutable::ModuleMethods#memoize' do
+describe Immutable::ModuleMethods, '#memoize' do
   subject { object.memoize(method) }
 
   let(:object) { Class.new(ImmutableSpecs::Object) }

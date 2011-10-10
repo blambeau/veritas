@@ -1,19 +1,20 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation#each' do
+describe Relation, '#each' do
   subject { object.each { |tuple| yields << tuple } }
 
-  let(:klass)  { Relation                                   }
   let(:header) { Relation::Header.new([ [ :id, Integer ] ]) }
   let(:body)   { [ [ 1 ], [ 2 ], [ 2 ] ].each               }  # use an Enumerator
-  let(:object) { klass.new(header, body)                    }
+  let(:object) { described_class.new(header, body)          }
   let(:yields) { []                                         }
 
   before do
-    object.should be_instance_of(klass)
+    object.should be_instance_of(described_class)
   end
 
-  it_should_behave_like 'a command method'
+  it_should_behave_like 'an #each method'
 
   it 'yields each tuple' do
     expect { subject }.to change { yields.dup }.
@@ -22,7 +23,7 @@ describe 'Veritas::Relation#each' do
   end
 end
 
-describe 'Veritas::Relation' do
+describe Relation do
   subject { object.new(header, body) }
 
   let(:header) { [ [ :id, Integer ] ] }

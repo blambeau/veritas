@@ -1,12 +1,14 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Attribute#inspect' do
+describe Attribute, '#inspect' do
   subject { object.inspect }
 
-  let(:klass)  { Attribute::Integer }
-  let(:object) { klass.new(:id)     }
+  let(:described_class) { Attribute::Integer       }
+  let(:object)          { described_class.new(:id) }
 
-  it { should be_kind_of(String) }
+  it { should be_instance_of(String) }
 
   it { should == '<Attribute::Integer name: id>' }
 end

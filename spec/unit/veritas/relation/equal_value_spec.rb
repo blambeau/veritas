@@ -1,15 +1,16 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation#==' do
+describe Relation, '#==' do
   subject { object == other }
 
-  let(:klass)  { Relation                }
-  let(:header) { [ [ :id, Integer ] ]    }
-  let(:body)   { [ [ 1 ] ].each          }  # use an Enumerator
-  let(:object) { klass.new(header, body) }
+  let(:header) { [ [ :id, Integer ] ]              }
+  let(:body)   { [ [ 1 ] ].each                    }  # use an Enumerator
+  let(:object) { described_class.new(header, body) }
 
   before do
-    object.should be_instance_of(klass)
+    object.should be_instance_of(described_class)
   end
 
   context 'with the same object' do
@@ -18,7 +19,7 @@ describe 'Veritas::Relation#==' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
@@ -28,56 +29,56 @@ describe 'Veritas::Relation#==' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
   context 'with an equivalent object of a subclass' do
-    let(:other) { Class.new(klass).new(header, body) }
+    let(:other) { Class.new(described_class).new(header, body) }
 
     it { should be(true) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
   context 'with an object having a different header' do
-    let(:other_header) { [ [ :id, Numeric ] ]                   }
-    let(:other_body)   { body                                   }
-    let(:other)        { Relation.new(other_header, other_body) }
+    let(:other_header) { [ [ :id, Numeric ] ]                          }
+    let(:other_body)   { body                                          }
+    let(:other)        { described_class.new(other_header, other_body) }
 
     it { should be(false) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
   context 'with an object having a different body' do
-    let(:other_header) { header                                 }
-    let(:other_body)   { [ [ 2 ] ].each                         }
-    let(:other)        { Relation.new(other_header, other_body) }
+    let(:other_header) { header                                        }
+    let(:other_body)   { [ [ 2 ] ].each                                }
+    let(:other)        { described_class.new(other_header, other_body) }
 
     it { should be(false) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
   context 'with an object having an equivalent header in a different order' do
-    let(:attribute1) { [ :id,   Integer ]                               }
-    let(:attribute2) { [ :name, String  ]                               }
-    let(:header1)    { Relation::Header.new([ attribute1, attribute2 ]) }
-    let(:header2)    { Relation::Header.new([ attribute2, attribute1 ]) }
-    let(:object)     { klass.new(header1, [ [ 1, 'Dan Kubb' ] ].each)   }
-    let(:other)      { klass.new(header2, [ [ 'Dan Kubb', 1 ] ].each)   }
+    let(:attribute1) { [ :id,   Integer ]                                       }
+    let(:attribute2) { [ :name, String  ]                                       }
+    let(:header1)    { [ attribute1, attribute2 ]                               }
+    let(:header2)    { [ attribute2, attribute1 ]                               }
+    let(:object)     { described_class.new(header1, [ [ 1, 'Dan Kubb' ] ].each) }
+    let(:other)      { described_class.new(header2, [ [ 'Dan Kubb', 1 ] ].each) }
 
     it { should be(true) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
@@ -88,7 +89,7 @@ describe 'Veritas::Relation#==' do
 
     it 'is symmetric' do
       pending 'Set#== should call to_set on other' do
-        should == (other == object)
+        should eql(other == object)
       end
     end
   end
@@ -99,7 +100,7 @@ describe 'Veritas::Relation#==' do
     it { should be(false) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 end

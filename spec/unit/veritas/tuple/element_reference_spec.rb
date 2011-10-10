@@ -1,11 +1,12 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Tuple#[]' do
+describe Tuple, '#[]' do
   subject { object[attribute] }
 
-  let(:klass)  { Tuple                                      }
   let(:header) { Relation::Header.new([ [ :id, Integer ] ]) }
-  let(:object) { klass.new(header, [ 1 ])                   }
+  let(:object) { described_class.new(header, [ 1 ])         }
 
   context 'with a known attribute' do
     let(:attribute) { header[:id] }
@@ -16,6 +17,6 @@ describe 'Veritas::Tuple#[]' do
   context 'with an unknown attribute' do
     let(:attribute) { Attribute::Integer.new(:other_id) }
 
-    it { should be_nil }
+    specify { expect { subject }.to raise_error(IndexError) }
   end
 end

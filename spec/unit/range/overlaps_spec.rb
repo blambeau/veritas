@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
 # Definitions and ascii art from ruby mailing list:
 #   http://www.ruby-forum.com/topic/98359
 
-describe 'Range#overlaps?' do
+describe Range, '#overlaps?' do
   subject { object.overlaps?(other) }
 
   # self:   |---|
@@ -15,7 +17,7 @@ describe 'Range#overlaps?' do
     it { should be(false) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -28,7 +30,7 @@ describe 'Range#overlaps?' do
     it { should be(false) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -41,7 +43,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -54,7 +56,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -67,7 +69,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -80,7 +82,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -93,7 +95,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -106,7 +108,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -119,7 +121,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -132,7 +134,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -145,7 +147,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -158,7 +160,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -171,7 +173,7 @@ describe 'Range#overlaps?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 
@@ -184,7 +186,7 @@ describe 'Range#overlaps?' do
     it { should be(false) }
 
     it 'is symmetric' do
-      should == other.overlaps?(object)
+      should eql(other.overlaps?(object))
     end
   end
 end

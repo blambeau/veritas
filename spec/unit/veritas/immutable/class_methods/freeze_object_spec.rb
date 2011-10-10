@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Immutable.freeze_object' do
+describe Immutable, '.freeze_object' do
   subject { object.freeze_object(value) }
 
-  let(:object) { Immutable }
+  let(:object) { self.class.described_type }
 
   context 'with a numeric value' do
     let(:value) { 1 }
@@ -29,6 +31,12 @@ describe 'Veritas::Immutable.freeze_object' do
     it { should equal(value) }
   end
 
+  context 'with a symbol value' do
+    let(:value) { :symbol }
+
+    it { should equal(value) }
+  end
+
   context 'with a frozen value' do
     let(:value) { String.new.freeze }
 
@@ -40,7 +48,7 @@ describe 'Veritas::Immutable.freeze_object' do
 
     it { should_not equal(value) }
 
-    it { should be_kind_of(String) }
+    it { should be_instance_of(String) }
 
     it { should == value }
 

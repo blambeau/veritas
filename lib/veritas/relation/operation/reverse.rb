@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -52,8 +54,9 @@ module Veritas
         # @return [self]
         #
         # @api public
-        def each(&block)
-          operand.reverse_each(&block)
+        def each
+          return to_enum unless block_given?
+          operand.reverse_each { |tuple| yield tuple }
           self
         end
 

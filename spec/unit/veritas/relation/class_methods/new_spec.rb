@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation.new' do
+describe Relation, '.new' do
   subject { object.new(header, body) }
 
   let(:header) { Relation::Header.new([ [ :id, Integer ] ]) }
-  let(:object) { Relation                                   }
+  let(:object) { described_class                            }
 
   context 'with an Enumerable responding to #size' do
     let(:body) { [ [ 1 ] ] }
@@ -13,7 +15,7 @@ describe 'Veritas::Relation.new' do
       body.should respond_to(:size)
     end
 
-    it { should be_kind_of(Relation::Materialized) }
+    it { should be_instance_of(Relation::Materialized) }
 
     it { should == body }
   end
@@ -25,7 +27,7 @@ describe 'Veritas::Relation.new' do
       body.should_not respond_to(:size)
     end
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     it { should == [ [ 1 ] ] }
   end

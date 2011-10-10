@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -15,6 +17,7 @@ module Veritas
         #
         # @api private
         def self.included(descendant)
+          super
           descendant.extend ClassMethods
           self
         end
@@ -29,8 +32,7 @@ module Veritas
         # @api private
         def initialize(left, right)
           super
-          @header     = left.header     | right.header
-          @directions = left.directions | right.directions
+          @header = left.header | right.header
         end
 
         module ClassMethods

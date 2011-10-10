@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -5,6 +7,15 @@ module Veritas
       # A class representing a sorted relation
       class Order < Relation
         include Unary
+
+        compare :operand, :directions
+
+        # The relation sort order
+        #
+        # @return [Operation::Order::DirectionSet]
+        #
+        # @api private
+        attr_reader :directions
 
         # Instantiate a new Order
         #
@@ -20,7 +31,6 @@ module Veritas
         #
         # @api public
         def self.new(operand, directions)
-          directions = operand.header if directions.empty?
           directions = DirectionSet.coerce(directions)
           assert_order_by_full_header(operand, directions)
           super
@@ -77,73 +87,39 @@ module Veritas
         # @return [self]
         #
         # @api public
-        def each(&block)
-          directions.sort_tuples(operand).each(&block)
+        def each
+          return to_enum unless block_given?
+          directions.sort_tuples(operand).each { |tuple| yield tuple }
           self
-        end
-
-        # Compare the Order with other relation for equality
-        #
-        # @example
-        #   order.eql?(other)  # => true or false
-        #
-        # @param [Relation] other
-        #   the other relation to compare with
-        #
-        # @return [Boolean]
-        #
-        # @api public
-        def eql?(other)
-          super && directions.eql?(other.directions)
-        end
-
-        # Return the hash of the order
-        #
-        # @example
-        #   hash = order.hash
-        #
-        # @return [Fixnum]
-        #
-        # @api public
-        def hash
-          super ^ directions.hash
         end
 
         module Methods
 
           # Return an ordered relation
           #
-          # @example with no directions
-          #   order = relation.order  # sort by the header
-          #
-          # @example with directions
-          #   order = relation.order([ relation[:a].desc, relation[:b] ])
-          #
-          # @example with a block
-          #   order = relation.order { |r| [ r[:a].desc, r[:b] ] }
+          # @example
+          #   order = relation.sort_by { |r| [ r.a.desc, r.b ] }
           #
           # @yield [relation]
           #   optional block to evaluate for directions
           #
           # @yieldparam [Relation] relation
           #
+          # @yieldreturn [DirectionSet, Array<Direction>, Header]
+          #
           # @return [Order]
           #
           # @api public
-          def order(directions = block_given? ? Array(yield(self)) : header)
-            Order.new(self, directions)
+          def sort_by
+            context = Evaluator::Context.new(header) { |context| yield context }
+            Order.new(self, context.yield)
           end
 
         end # module Methods
 
         Relation.class_eval { include Methods }
 
-        memoize :hash
-
       end # class Order
     end # module Operation
   end # class Relation
 end # module Veritas
-
-require 'veritas/relation/operation/order/direction'
-require 'veritas/relation/operation/order/direction_set'

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Attribute
 
@@ -5,7 +7,7 @@ module Veritas
     class Time < Object
       include Comparable
 
-      DEFAULT_RANGE = (::Time.at(0)..::Time.at(2**31-1)).freeze
+      DEFAULT_RANGE = (::Time.at(0)..::Time.at(2 ** 31-1)).freeze
 
       # The Time primitive
       #

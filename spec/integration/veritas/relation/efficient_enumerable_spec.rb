@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
 # use an infinite list to simulate handling a large Array.
@@ -5,22 +7,22 @@ require 'spec_helper'
 class InfiniteList
   include Enumerable
 
-  Infinity = 1.0/0.0
-
   def each
-    (0..Infinity).each do |index|
+    index = 0
+    loop do
       yield [ index ]
+      index += 1
     end
     self
   end
 end
 
-describe 'Veritas::Algebra::Relation' do
+describe Relation do
   context 'Efficient Enumerable operation' do
     let(:relation) { Relation.new([ [ :id, Integer ] ], InfiniteList.new) }
 
     def sample(relation)
-      relation.enum_for.take(5)
+      relation.to_enum.take(5)
     end
 
     it '#project should be efficient' do
@@ -29,7 +31,7 @@ describe 'Veritas::Algebra::Relation' do
     end
 
     it '#restrict should be efficient' do
-      restricted = relation.restrict{ |r| r[:id].gt(5) }
+      restricted = relation.restrict{ |r| r.id.gt(5) }
       sample(restricted).should == [ [ 6 ], [ 7 ], [ 8 ], [ 9 ], [ 10 ] ]
     end
 

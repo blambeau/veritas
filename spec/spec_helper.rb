@@ -1,5 +1,8 @@
+# encoding: utf-8
+
 require 'rubygems'
 require 'backports'
+require 'backports/basic_object' unless RUBY_VERSION >= '1.9.2' && (RUBY_PLATFORM.include?('java') || RUBY_ENGINE == 'rbx')
 require 'veritas'
 require 'spec'
 require 'spec/autorun'
@@ -10,5 +13,15 @@ include Veritas
 Dir[File.expand_path('../{support,shared}/**/*.rb', __FILE__)].each { |f| require f }
 
 Spec::Runner.configure do |config|
-  config.extend AddMethodMissing
+
+  # Record the original Attribute descendants
+  config.before do
+    @original_descendants = Attribute.descendants.dup
+  end
+
+  # Reset the Attribute descendants
+  config.after do
+    Attribute.descendants.replace(@original_descendants)
+  end
+
 end

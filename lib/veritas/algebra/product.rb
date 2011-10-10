@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
 
@@ -55,8 +57,10 @@ module Veritas
       #
       # @api public
       def each(&block)
-        left.each do |tuple|
-          Relation::Operation::Combination.combine_tuples(header, tuple, right, &block)
+        return to_enum unless block_given?
+        right_tuples = right.to_a
+        left.each do |left_tuple|
+          Relation::Operation::Combination.combine_tuples(header, left_tuple, right_tuples, &block)
         end
         self
       end

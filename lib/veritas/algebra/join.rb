@@ -1,9 +1,18 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
 
     # The join between relations
     class Join < Relation
       include Relation::Operation::Combination
+
+      # The common headers between the operands
+      #
+      # @return [Header]
+      #
+      # @api private
+      attr_reader :join_header
 
       # Instantiate a new Join
       #
@@ -52,7 +61,7 @@ module Veritas
         super
         right_header      = right.header
         @join_header      = left.header  & right_header
-        @remainder_header = right_header - @join_header
+        @remainder_header = right_header - join_header
       end
 
       # Iterate over each tuple in the set
@@ -70,12 +79,14 @@ module Veritas
       #
       # @api public
       def each(&block)
+        return to_enum unless block_given?
+        util  = Relation::Operation::Combination
         index = build_index
 
-        left.each do |tuple|
-          right_tuples = index[join_tuple(tuple)]
+        left.each do |left_tuple|
+          right_tuples = index[join_tuple(left_tuple)]
           if right_tuples
-            Relation::Operation::Combination.combine_tuples(header, tuple, right_tuples, &block)
+            util.combine_tuples(header, left_tuple, right_tuples, &block)
           end
         end
 
@@ -105,7 +116,7 @@ module Veritas
       #
       # @api private
       def join_tuple(tuple)
-        tuple.project(@join_header)
+        tuple.project(join_header)
       end
 
       # Generate a tuple with the disjoint attributes to use in the join
@@ -127,16 +138,11 @@ module Veritas
         # @example natural join
         #   join = relation.join(other)
         #
-        # @example theta-join using a predicate
-        #   join = relation.join(other, relation[:a].gte(other[:b]))
-        #
         # @example theta-join using a block
-        #   join = relation.join(other) { |r| r[:a].gte(r[:b]) }
+        #   join = relation.join(other) { |r| r.a.gte(r.b) }
         #
         # @param [Relation] other
         #   the other relation to join
-        # @param [Expression, #call] predicate
-        #   the predicate to restrict the tuples with
         #
         # @yield [relation]
         #   optional block to restrict the tuples with
@@ -144,12 +150,15 @@ module Veritas
         # @yieldparam [Relation] relation
         #   the context to evaluate the restriction with
         #
+        # @yieldreturn [Function, #call]
+        #   predicate to restrict the tuples with
+        #
         # @return [Join, Restriction]
         #
         # @api public
-        def join(other, predicate = nil, &block)
-          if predicate || block_given?
-            theta_join(other, predicate, &block)
+        def join(other)
+          if block_given?
+            theta_join(other) { |relation| yield relation }
           else
             natural_join(other)
           end
@@ -173,8 +182,6 @@ module Veritas
         #
         # @param [Relation] other
         #   the other relation to join
-        # @param [Array] *args
-        #   optional arguments to pass to Relation#restrict
         #
         # @yield [relation]
         #   optional block to restrict the tuples with
@@ -182,11 +189,14 @@ module Veritas
         # @yieldparam [Relation] relation
         #   the context to evaluate the restriction with
         #
+        # @yieldreturn [Function, #call]
+        #   predicate to restrict the tuples with
+        #
         # @return [Restriction]
         #
         # @api private
-        def theta_join(other, *args, &block)
-          product(other).restrict(*args.compact, &block)
+        def theta_join(other)
+          product(other).restrict { |relation| yield relation }
         end
 
       end # module Methods

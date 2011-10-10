@@ -1,8 +1,17 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
 
     # A materialized relation
     class Materialized < Relation
+
+      # The relation sort order
+      #
+      # @return [Operation::Order::DirectionSet]
+      #
+      # @api private
+      attr_reader :directions
 
       # Initialize a materialized Relation
       #
@@ -33,16 +42,16 @@ module Veritas
         self
       end
 
-      # Test if there are no tuples
+      # Return true for a Materialized relation
       #
       # @example
-      #   materialized.empty?  # => true or false
+      #   relation.materialized?  # => true
       #
-      # @return [Boolean]
+      # @return [true]
       #
       # @api public
-      def empty?
-        tuples.empty?
+      def materialized?
+        true
       end
 
       # Return the number of tuples

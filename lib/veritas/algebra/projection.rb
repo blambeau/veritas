@@ -1,9 +1,13 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
 
     # Specify only specific attributes to keep in the relation
     class Projection < Relation
       include Relation::Operation::Unary
+
+      compare :operand, :header
 
       # Initialize a Projection
       #
@@ -17,8 +21,7 @@ module Veritas
       # @api private
       def initialize(operand, attributes)
         super(operand)
-        @header     = @header.project(attributes.to_ary)
-        @directions = Relation::Operation::Order::DirectionSet::EMPTY
+        @header = @header.project(attributes.to_ary)
       end
 
       # Iterate over each tuple in the set
@@ -36,39 +39,13 @@ module Veritas
       #
       # @api public
       def each
+        return to_enum unless block_given?
         seen = {}
         operand.each do |tuple|
           tuple = tuple.project(header)
-          yield(seen[tuple] = tuple) unless seen.key?(tuple)
+          yield seen[tuple] = tuple unless seen.key?(tuple)
         end
         self
-      end
-
-      # Compare the Projection with other relation for equality
-      #
-      # @example
-      #   projection.eql?(other)  # => true or false
-      #
-      # @param [Relation] other
-      #   the other relation to compare with
-      #
-      # @return [Boolean]
-      #
-      # @api public
-      def eql?(other)
-        super && header.eql?(other.header)
-      end
-
-      # Return the hash of the projection
-      #
-      # @example
-      #   hash = projection.hash
-      #
-      # @return [Fixnum]
-      #
-      # @api public
-      def hash
-        super ^ header.hash
       end
 
       module Methods
@@ -134,8 +111,6 @@ module Veritas
       end # module Methods
 
       Relation.class_eval { include Methods }
-
-      memoize :hash
 
     end # class Projection
   end # module Algebra

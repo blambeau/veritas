@@ -1,15 +1,16 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation#[]' do
+describe Relation, '#[]' do
   subject { object[name] }
 
-  let(:klass)     { Relation                          }
-  let(:name)      { :id                               }
-  let(:attribute) { Attribute::Integer.new(name)      }
-  let(:object)    { klass.new([ attribute ], [].each) }
+  let(:name)      { :id                                         }
+  let(:attribute) { Attribute::Integer.new(name)                }
+  let(:object)    { described_class.new([ attribute ], [].each) }
 
   before do
-    object.should be_instance_of(klass)
+    object.should be_instance_of(described_class)
   end
 
   it { should equal(attribute) }

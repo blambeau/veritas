@@ -1,12 +1,13 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Offset#eql?' do
+describe Relation::Operation::Offset, '#eql?' do
   subject { object.eql?(other) }
 
-  let(:klass)   { Relation::Operation::Offset                                       }
-  let(:operand) { Relation.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ], [ 3 ] ]).order }
-  let(:offset)  { 1                                                                 }
-  let(:object)  { klass.new(operand, offset)                                        }
+  let(:operand) { Relation.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ], [ 3 ] ]).sort_by { |r| r.id } }
+  let(:offset)  { 1                                                                                }
+  let(:object)  { described_class.new(operand, offset)                                             }
 
   context 'with the same object' do
     let(:other) { object }
@@ -14,7 +15,7 @@ describe 'Veritas::Relation::Operation::Offset#eql?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.eql?(object)
+      should eql(other.eql?(object))
     end
   end
 
@@ -24,41 +25,41 @@ describe 'Veritas::Relation::Operation::Offset#eql?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.eql?(object)
+      should eql(other.eql?(object))
     end
   end
 
   context 'with an equivalent object of a subclass' do
-    let(:other) { Class.new(klass).new(operand, offset) }
+    let(:other) { Class.new(described_class).new(operand, offset) }
 
     it { should be(false) }
 
     it 'is symmetric' do
-      should == other.eql?(object)
+      should eql(other.eql?(object))
     end
   end
 
   context 'with an object having a different operand' do
-    let(:other_operand) { Relation.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ] ]).order }
-    let(:other_offset)  { offset                                                     }
-    let(:other)         { klass.new(other_operand, other_offset)                     }
+    let(:other_operand) { Relation.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ] ]).sort_by { |r| r.id } }
+    let(:other_offset)  { offset                                                                    }
+    let(:other)         { described_class.new(other_operand, other_offset)                          }
 
     it { should be(false) }
 
     it 'is symmetric' do
-      should == other.eql?(object)
+      should eql(other.eql?(object))
     end
   end
 
   context 'with an object having a different offset' do
-    let(:other_operand) { operand                                }
-    let(:other_offset)  { 2                                      }
-    let(:other)         { klass.new(other_operand, other_offset) }
+    let(:other_operand) { operand                                          }
+    let(:other_offset)  { 2                                                }
+    let(:other)         { described_class.new(other_operand, other_offset) }
 
     it { should be(false) }
 
     it 'is symmetric' do
-      should == other.eql?(object)
+      should eql(other.eql?(object))
     end
   end
 end

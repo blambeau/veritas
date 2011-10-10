@@ -1,11 +1,12 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Tuple#header' do
+describe Tuple, '#header' do
   subject { object.header }
 
-  let(:klass)  { Tuple                                      }
   let(:header) { Relation::Header.new([ [ :id, Integer ] ]) }
-  let(:object) { klass.new(header, [ 1 ])                   }
+  let(:object) { described_class.new(header, [ 1 ])         }
 
   it_should_behave_like 'an idempotent method'
 

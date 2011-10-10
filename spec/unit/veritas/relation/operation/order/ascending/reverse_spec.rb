@@ -1,13 +1,14 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Order::Ascending#reverse' do
+describe Relation::Operation::Order::Ascending, '#reverse' do
   subject { object.reverse }
 
-  let(:klass)     { Relation::Operation::Order::Ascending }
-  let(:attribute) { Attribute::Integer.new(:id)           }
-  let(:object)    { klass.new(attribute)                  }
+  let(:attribute) { Attribute::Integer.new(:id)    }
+  let(:object)    { described_class.new(attribute) }
 
-  it { should be_kind_of(Relation::Operation::Order::Descending) }
+  it { should be_instance_of(Relation::Operation::Order::Descending) }
 
   its(:attribute) { should equal(attribute) }
 end

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
 
@@ -5,9 +7,11 @@ module Veritas
     class Restriction < Relation
       include Relation::Operation::Unary
 
+      compare :operand, :predicate
+
       # The predicate for the relation
       #
-      # @return [Expression, #call]
+      # @return [Function, #call]
       #
       # @api private
       attr_reader :predicate
@@ -16,8 +20,8 @@ module Veritas
       #
       # @param [Relation] operand
       #   the relation to restrict
-      # @param [Expression, #call] predicate
-      #   the expression to restrict the tuples with
+      # @param [Function, #call] predicate
+      #   the function to restrict the tuples with
       #
       # @return [undefined]
       #
@@ -42,49 +46,19 @@ module Veritas
       #
       # @api public
       def each
-        operand.each { |tuple| yield(tuple) if predicate.call(tuple) }
+        return to_enum unless block_given?
+        operand.each do |tuple|
+          yield tuple if Function.extract_value(predicate, tuple).equal?(true)
+        end
         self
-      end
-
-      # Compare the Restriction with other relation for equality
-      #
-      # @example
-      #   restriction.eql?(other)  # => true or false
-      #
-      # @param [Relation] other
-      #   the other relation to compare with
-      #
-      # @return [Boolean]
-      #
-      # @api public
-      def eql?(other)
-        super && predicate.eql?(other.predicate)
-      end
-
-      # Return the hash of the restriction
-      #
-      # @example
-      #   hash = restriction.hash
-      #
-      # @return [Fixnum]
-      #
-      # @api public
-      def hash
-        super ^ predicate.hash
       end
 
       module Methods
 
         # Return a relation with restricted tuples
         #
-        # @example restriction using a predicate
-        #   restriction = relation.restrict(relation.name.eq('other'))
-        #
         # @example restriction using a block
-        #   restriction = relation.restrict { |r| r[:a].eq('other').and(r[:b].gte(42)) }
-        #
-        # @param [Expression, #call] predicate
-        #   optional predicate to restrict the tuples with
+        #   restriction = relation.restrict { |r| r.a.eq('other').and(r.b.gte(42)) }
         #
         # @yield [relation]
         #   optional block to restrict the tuples with
@@ -92,18 +66,20 @@ module Veritas
         # @yieldparam [Relation] relation
         #   the context to evaluate the restriction with
         #
+        # @yieldreturn [Function, #call]
+        #   predicate to restrict the tuples with
+        #
         # @return [Restriction]
         #
         # @api public
-        def restrict(predicate = yield(self))
-          Restriction.new(self, predicate)
+        def restrict
+          context = Evaluator::Context.new(header) { |context| yield context }
+          Restriction.new(self, context.yield)
         end
 
       end # module Methods
 
       Relation.class_eval { include Methods }
-
-      memoize :hash
 
     end # class Restriction
   end # module Algebra

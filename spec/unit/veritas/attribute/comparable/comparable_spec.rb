@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Attribute::Comparable#comparable?' do
+describe Attribute::Comparable, '#comparable?' do
   subject { object.comparable?(other) }
 
-  let(:klass)  { Attribute::Integer }
-  let(:object) { klass.new(:id)     }
+  let(:described_class) { Attribute::Integer       }
+  let(:object)          { described_class.new(:id) }
 
   context 'when the other attribute is the same type' do
     let(:other) { object.dup }
@@ -12,7 +14,7 @@ describe 'Veritas::Attribute::Comparable#comparable?' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.comparable?(object)
+      should eql(other.comparable?(object))
     end
   end
 
@@ -22,29 +24,27 @@ describe 'Veritas::Attribute::Comparable#comparable?' do
     it { should be(false) }
 
     it 'is not be symmetric' do
-      expect {
-        other.comparable?(object)
-      }.to raise_error(NoMethodError)
+      expect { other.comparable?(object) }.to raise_error(NoMethodError)
     end
   end
 
   context 'when the other attribute is a descendant type' do
-    let(:other) { Class.new(klass).new(:descendant) }
+    let(:other) { Class.new(described_class).new(:descendant) }
 
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.comparable?(object)
+      should eql(other.comparable?(object))
     end
   end
 
   context 'when the other attribute shares a common type' do
-    let(:other) { klass.superclass.new(:ancestor) }
+    let(:other) { described_class.superclass.new(:ancestor) }
 
     it { should be(true) }
 
     it 'is symmetric' do
-      should == other.comparable?(object)
+      should eql(other.comparable?(object))
     end
   end
 end

@@ -1,11 +1,13 @@
+# encoding: utf-8
+
 module Veritas
   class Attribute
 
     # Represents a Boolean value in a relation tuple
     class Boolean < Object
-      include Logic::Connective::Conjunction::Methods,
-              Logic::Connective::Disjunction::Methods,
-              Logic::Connective::Negation::Methods
+      include Function::Connective::Conjunction::Methods,
+              Function::Connective::Disjunction::Methods,
+              Function::Connective::Negation::Methods
 
       # The Boolean primitive
       #

@@ -1,15 +1,16 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Rename#header' do
+describe Algebra::Rename, '#header' do
   subject { object.header }
 
-  let(:klass)    { Algebra::Rename                               }
-  let(:relation) { Relation.new([ [ :id, Integer ] ], [ [ 1 ] ]) }
-  let(:object)   { klass.new(relation, :id => :other_id)         }
+  let(:relation) { Relation.new([ [ :id, Integer ] ], [ [ 1 ] ])   }
+  let(:object)   { described_class.new(relation, :id => :other_id) }
 
   it_should_behave_like 'an idempotent method'
 
-  it { should be_kind_of(Relation::Header) }
+  it { should be_instance_of(Relation::Header) }
 
   it { should == [ [ :other_id, Integer ] ] }
 end

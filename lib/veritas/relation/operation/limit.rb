@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -5,6 +7,8 @@ module Veritas
       # A class representing a limited relation
       class Limit < Relation
         include Unary
+
+        compare :operand, :limit
 
         # Return the limit
         #
@@ -15,6 +19,13 @@ module Veritas
         #
         # @api public
         attr_reader :limit
+
+        # The relation sort order
+        #
+        # @return [Operation::Order::DirectionSet]
+        #
+        # @api private
+        attr_reader :directions
 
         # Instantiate a new Limit
         #
@@ -62,7 +73,7 @@ module Veritas
         #
         # @api private
         def self.assert_valid_limit(limit)
-          if limit < 0
+          if limit.nil? || limit < 0
             raise InvalidLimitError, "limit must be greater than or equal to 0, but was #{limit.inspect}"
           end
         end
@@ -81,7 +92,8 @@ module Veritas
         # @api private
         def initialize(operand, limit)
           super(operand)
-          @limit = limit.to_int
+          @limit      = limit.to_int
+          @directions = operand.directions
         end
 
         # Iterate over each tuple in the set
@@ -99,38 +111,12 @@ module Veritas
         #
         # @api public
         def each
+          return to_enum unless block_given?
           operand.each_with_index do |tuple, index|
             break if @limit == index
             yield tuple
           end
           self
-        end
-
-        # Compare the Limit with other relation for equality
-        #
-        # @example
-        #   limited_relation.eql?(other)  # => true or false
-        #
-        # @param [Relation] other
-        #   the other relation to compare with
-        #
-        # @return [Boolean]
-        #
-        # @api public
-        def eql?(other)
-          super && limit.eql?(other.limit)
-        end
-
-        # Return the hash of the limit
-        #
-        # @example
-        #   hash = limit.hash
-        #
-        # @return [Fixnum]
-        #
-        # @api public
-        def hash
-          super ^ limit.hash
         end
 
         module Methods
@@ -189,8 +175,6 @@ module Veritas
         end # module Methods
 
         Relation.class_eval { include Methods }
-
-        memoize :hash
 
       end # class Limit
     end # module Operation

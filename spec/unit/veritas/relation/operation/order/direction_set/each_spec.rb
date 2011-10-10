@@ -1,14 +1,15 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Order::DirectionSet#each' do
+describe Relation::Operation::Order::DirectionSet, '#each' do
   subject { object.each { |direction| yields << direction } }
 
-  let(:klass)      { Relation::Operation::Order::DirectionSet                      }
   let(:attributes) { [ Attribute::Integer.new(:id), Attribute::String.new(:name) ] }
-  let(:object)     { klass.new(attributes)                                         }
+  let(:object)     { described_class.new(attributes)                               }
   let(:yields)     { []                                                            }
 
-  it_should_behave_like 'a command method'
+  it_should_behave_like 'an #each method'
 
   it 'yields each direction' do
     expect { subject }.to change { yields.dup }.
@@ -17,7 +18,7 @@ describe 'Veritas::Relation::Operation::Order::DirectionSet#each' do
   end
 end
 
-describe 'Veritas::Relation::Operation::Order::DirectionSet' do
+describe Relation::Operation::Order::DirectionSet do
   subject { object.new(attributes) }
 
   let(:attributes) { [ Attribute::Integer.new(:id) ]          }

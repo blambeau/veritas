@@ -1,11 +1,13 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Operation::Binary#right' do
+describe Operation::Binary, '#right' do
   subject { object.right }
 
-  let(:klass)  { Class.new { include Operation::Binary } }
-  let(:left)   { 'Left'                                  }
-  let(:object) { klass.new(left, right)                  }
+  let(:described_class) { Class.new { include Operation::Binary } }
+  let(:left)            { 'Left'                                  }
+  let(:object)          { described_class.new(left, right)        }
 
   context 'when right operand is frozen' do
     let(:right) { 'Right'.freeze }

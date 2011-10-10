@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Attribute.name_from' do
+describe Attribute, '.name_from' do
   subject { object.name_from(argument) }
 
-  let(:object) { Attribute }
+  let(:object) { described_class }
 
   context 'argument is an Attribute' do
     let(:argument) { Attribute::Integer.new(:id) }

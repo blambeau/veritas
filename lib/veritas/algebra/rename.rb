@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
 
@@ -5,12 +7,21 @@ module Veritas
     class Rename < Relation
       include Relation::Operation::Unary
 
+      compare :operand, :aliases
+
       # The aliases for the relation
       #
       # @return [Aliases]
       #
       # @api private
       attr_reader :aliases
+
+      # The relation sort order
+      #
+      # @return [Operation::Order::DirectionSet]
+      #
+      # @api private
+      attr_reader :directions
 
       # Initialize a Rename
       #
@@ -26,7 +37,7 @@ module Veritas
         super(operand)
         @aliases    = Aliases.coerce(@header, aliases)
         @header     = @header.rename(@aliases)
-        @directions = @directions.rename(@aliases)
+        @directions = operand.directions.rename(@aliases)
       end
 
       # Iterate over each tuple in the set
@@ -43,36 +54,10 @@ module Veritas
       # @return [self]
       #
       # @api public
-      def each(&block)
-        operand.each { |tuple| yield Tuple.new(header, tuple.to_ary) }
+      def each
+        return to_enum unless block_given?
+        operand.each { |operand_tuple| yield Tuple.new(header, operand_tuple.to_ary) }
         self
-      end
-
-      # Compare the Rename with other relation for equality
-      #
-      # @example
-      #   rename.eql?(other)  # => true or false
-      #
-      # @param [Relation] other
-      #   the other relation to compare with
-      #
-      # @return [Boolean]
-      #
-      # @api public
-      def eql?(other)
-        super && aliases.eql?(other.aliases)
-      end
-
-      # Return the hash of the rename
-      #
-      # @example
-      #   hash = rename.hash
-      #
-      # @return [Fixnum]
-      #
-      # @api public
-      def hash
-        super ^ aliases.hash
       end
 
       module Methods
@@ -80,7 +65,7 @@ module Veritas
         # Return a relation with the header renamed
         #
         # @example
-        #   rename = relation.rename(:a => :b, :c => :d)
+        #   rename = relation.rename(a: :b, c: :d)
         #
         # @param [Hash, Aliases] aliases
         #   the old and new attribute names
@@ -96,10 +81,6 @@ module Veritas
 
       Relation.class_eval { include Methods }
 
-      memoize :hash
-
     end # class Rename
   end # module Algebra
 end # module Veritas
-
-require 'veritas/algebra/rename/aliases'

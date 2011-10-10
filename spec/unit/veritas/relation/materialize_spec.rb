@@ -1,17 +1,18 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation#materialize' do
+describe Relation, '#materialize' do
   subject { object.materialize }
 
-  let(:klass)  { Relation                                   }
-  let(:header) { Relation::Header.new([ [ :id, Integer ] ]) }
-  let(:object) { klass.new(header, [ [ 1 ] ].each).order    }
+  let(:header) { Relation::Header.new([ [ :id, Integer ] ])                       }
+  let(:object) { described_class.new(header, [ [ 1 ] ].each).sort_by { |r| r.id } }
 
   before do
-    object.should be_kind_of(klass)
+    object.should be_kind_of(described_class)
   end
 
-  it { should be_kind_of(Relation::Materialized) }
+  it { should be_instance_of(Relation::Materialized) }
 
   its(:header) { should equal(header) }
 

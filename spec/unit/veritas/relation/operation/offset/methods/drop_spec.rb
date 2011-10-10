@@ -1,14 +1,16 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Offset::Methods#drop' do
+describe Relation::Operation::Offset::Methods, '#drop' do
   subject { object.drop(offset) }
 
-  let(:klass)    { Relation                                               }
-  let(:offset)   { 1                                                      }
-  let(:relation) { klass.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ] ].each) }
-  let(:object)   { relation.order                                         }
+  let(:described_class) { Relation                                                         }
+  let(:offset)          { 1                                                                }
+  let(:relation)        { described_class.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ] ].each) }
+  let(:object)          { relation.sort_by { |r| r.id }                                    }
 
-  it { should be_kind_of(Relation::Operation::Offset) }
+  it { should be_instance_of(Relation::Operation::Offset) }
 
   its(:offset) { should == offset }
 

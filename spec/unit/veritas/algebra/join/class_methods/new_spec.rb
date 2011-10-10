@@ -1,22 +1,24 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Join.new' do
+describe Algebra::Join, '.new' do
   subject { object.new(left, right) }
 
   let(:header) { [ [ :id, Integer ] ]                   }
   let(:left)   { Relation.new(header, [ [ 1 ], [ 2 ] ]) }
-  let(:object) { Algebra::Join                          }
+  let(:object) { described_class                        }
 
   context 'with relations having headers with common attributes' do
     let(:right) { Relation.new([ [ :id, Integer ], [ :name, String ] ], [ [ 2, 'Dan Kubb' ] ]) }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
   end
 
   context 'with relations having equivalent headers' do
     let(:right) { left.dup }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
   end
 
   context 'with relations having different headers' do

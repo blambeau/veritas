@@ -1,14 +1,16 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Limit::Methods#last' do
-  let(:klass)    { Relation                                                      }
-  let(:relation) { klass.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ], [ 3 ] ].each) }
-  let(:object)   { relation.order                                                }
+describe Relation::Operation::Limit::Methods, '#last' do
+  let(:described_class) { Relation                                                                }
+  let(:relation)        { described_class.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ], [ 3 ] ].each) }
+  let(:object)          { relation.sort_by { |r| r.id }                                           }
 
   context 'with no arguments' do
     subject { object.last }
 
-    it { should be_kind_of(Relation::Operation::Reverse) }
+    it { should be_instance_of(Relation::Operation::Reverse) }
 
     it 'returns the expected tuples' do
       should == [ [ 3 ] ]
@@ -24,7 +26,7 @@ describe 'Veritas::Relation::Operation::Limit::Methods#last' do
 
     let(:limit) { 2 }
 
-    it { should be_kind_of(Relation::Operation::Reverse) }
+    it { should be_instance_of(Relation::Operation::Reverse) }
 
     it 'returns the expected tuples' do
       should == [ [ 2 ], [ 3 ] ]

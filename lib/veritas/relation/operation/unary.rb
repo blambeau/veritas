@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -15,8 +17,7 @@ module Veritas
         # @api private
         def initialize(operand)
           super
-          @header     = operand.header
-          @directions = operand.directions
+          @header = operand.header
         end
 
       end # module Unary

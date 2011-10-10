@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Header.coerce' do
+describe Relation::Header, '.coerce' do
   subject { object.coerce(argument) }
 
-  let(:object) { Relation::Header }
+  let(:object) { described_class }
 
   context 'when the argument is a Header' do
     let(:argument) { object.new([ [ :id, Integer ] ]) }
@@ -14,7 +16,7 @@ describe 'Veritas::Relation::Header.coerce' do
   context 'when the argument responds to #to_ary' do
     let(:argument) { [ [ :id, Integer ] ] }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     it { should == argument }
   end

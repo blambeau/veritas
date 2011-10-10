@@ -1,10 +1,14 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
 
     # A set of attributes that correspond to values in each tuple
     class Header
-      extend Aliasable
+      extend Aliasable, Comparator
       include Enumerable, Immutable
+
+      compare :to_set
 
       inheritable_alias(
         :& => :intersect,
@@ -12,23 +16,83 @@ module Veritas
         :- => :difference
       )
 
-      # Initialize a Header
+      # Instantiate a Header
       #
       # @example
       #   header = Header.new(attributes)
       #
-      # @param [#to_ary]
+      # @param [#to_ary] attributes
       #   optional attributes
       #
       # @return [undefined]
       #
       # @api public
-      def initialize(attributes = [])
-        @attributes = attributes.to_ary.map do |attribute|
-          Attribute.coerce(attribute)
-        end.freeze
-        @names   = {}
-        @indexes = {}
+      def self.new(attributes = [])
+        attributes = coerce_attributes(attributes.to_ary)
+        assert_unique_attributes(attributes)
+        super
+      end
+
+      # Coerce the attributes into an Array of Attribute objects
+      #
+      # @param [Array<Attribute>] attributes
+      #
+      # @return [Array<Attribute>]
+      #
+      # @api private
+      def self.coerce_attributes(attributes)
+        attributes.map { |attribute| Attribute.coerce(attribute) }
+      end
+
+      # Assert the attributes are unique
+      #
+      # @param [Array<Attribute>] attributes
+      #
+      # @return [undefined]
+      #
+      # @raise [DuplicateAttributeError]
+      #   raised if the attributes are not unique
+      #
+      # @api private
+      def self.assert_unique_attributes(attributes)
+        duplicates = duplicate_attributes(attributes)
+        if duplicates
+          raise DuplicateAttributeError, "duplicate attributes: #{duplicates.join(', ')}"
+        end
+      end
+
+      # Returns the duplicate attribute names, if any
+      #
+      # @param [Array<Attribute>] attributes
+      #
+      # @return [Array<Symbol>]
+      #   returns an array of duplicate attributes
+      #
+      # @return [nil]
+      #   returns nil if there are no duplicate attributes
+      #
+      # @api private
+      def self.duplicate_attributes(attributes)
+        names = attributes.map { |attribute| attribute.name }
+        names.select! { |name| names.count(name) > 1 }
+        names.uniq!
+      end
+
+      private_class_method :coerce_attributes, :assert_unique_attributes, :duplicate_attributes
+
+      # Initialize a Header
+      #
+      # @example
+      #   header = Header.new(attributes)
+      #
+      # @param [#to_ary] attributes
+      #
+      # @return [undefined]
+      #
+      # @api public
+      def initialize(attributes)
+        @names      = attributes.map { |attribute| attribute.name }
+        @attributes = Hash[@names.zip(attributes)]
       end
 
       # Iterate over each attribute in the header
@@ -45,30 +109,10 @@ module Veritas
       # @return [self]
       #
       # @api public
-      def each(&block)
-        to_ary.each(&block)
+      def each
+        return to_enum unless block_given?
+        @names.each { |name| yield @attributes.fetch(name) }
         self
-      end
-
-      # Lookup the index of an attribute in the header given a name
-      #
-      # @example
-      #   index = header.index(:id)
-      #
-      # @param [Attribute, #to_ary, #to_sym] name
-      #
-      # @return [Integer]
-      #   the offset when the name is known
-      # @return [nil]
-      #   nil when the attribute is unknown
-      #
-      # @api private
-      def index(name)
-        @indexes[name] ||=
-          begin
-            attribute = self[name]
-            to_ary.index(attribute) if attribute
-          end
       end
 
       # Lookup an attribute in the header given a name
@@ -85,11 +129,7 @@ module Veritas
       #
       # @api public
       def [](name)
-        @names[name] ||=
-          begin
-            name = Attribute.name_from(name)
-            detect { |attribute| attribute.name == name }
-          end
+        @attributes[Attribute.name_from(name)]
       end
 
       # Return a header with only the attributes specified
@@ -164,7 +204,7 @@ module Veritas
       #
       # @api private
       def to_ary
-        @attributes
+        @attributes.values_at(*@names).freeze
       end
 
       # Compare the header with other header for equivalency
@@ -179,35 +219,7 @@ module Veritas
       #
       # @api public
       def ==(other)
-        to_set == self.class.coerce(other).to_set
-      end
-
-      # Compare the header with other header for equality
-      #
-      # @example
-      #   header.eql?(other)  # => true or false
-      #
-      # @param [Header] other
-      #   the other header to compare with
-      #
-      # @return [Boolean]
-      #
-      # @api public
-      def eql?(other)
-        instance_of?(other.class) &&
-        to_set == other.to_set
-      end
-
-      # Return the hash of the header
-      #
-      # @example
-      #   hash = header.hash
-      #
-      # @return [Fixnum]
-      #
-      # @api public
-      def hash
-        self.class.hash ^ to_ary.hash
+        cmp?(__method__, coerce(other))
       end
 
       # Test if there are no attributes
@@ -219,7 +231,7 @@ module Veritas
       #
       # @api public
       def empty?
-        to_ary.empty?
+        @names.empty?
       end
 
       # Return a string representing the header
@@ -248,6 +260,18 @@ module Veritas
         self.class.new(attributes)
       end
 
+      # Coerce the object into a Header
+      #
+      # @param [Header, #to_ary]
+      #   the header or attributes
+      #
+      # @return [Header]
+      #
+      # @api private
+      def coerce(object)
+        self.class.coerce(object)
+      end
+
       # Coerce an Array-like object into a Header
       #
       # @param [Header, #to_ary]
@@ -260,7 +284,7 @@ module Veritas
         object.kind_of?(Header) ? object : new(object)
       end
 
-      memoize :hash
+      memoize :to_ary
 
     end # class Header
   end # class Relation

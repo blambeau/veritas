@@ -1,7 +1,9 @@
+# encoding: utf-8
+
 require 'spec_helper'
 require File.expand_path('../fixtures/classes', __FILE__)
 
-describe 'Veritas::Aliasable#inheritable_alias' do
+describe Aliasable, '#inheritable_alias' do
   subject { object.inheritable_alias(aliases) }
 
   let(:aliases)   { { :other => :test }               }
@@ -34,12 +36,12 @@ describe 'Veritas::Aliasable#inheritable_alias' do
 
     file, line = aliasable.other.first.split(':')[0, 2]
 
-    File.expand_path(file).should == File.expand_path('../../../../../lib/veritas/support/aliasable.rb', __FILE__)
-    line.to_i.should == 21
+    File.expand_path(file).should eql(File.expand_path('../../../../../lib/veritas/support/aliasable.rb', __FILE__))
+    line.to_i.should eql(38)
   end
 
   it 'sets the file and line number properly' do
-    if RUBY_PLATFORM[/java/]
+    if RUBY_PLATFORM.include?('java')
       pending('Kernel#caller returns the incorrect line number in JRuby', &specification)
     else
       instance_eval(&specification)

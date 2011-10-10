@@ -1,25 +1,13 @@
-require 'veritas/attribute/orderable'
-
-require 'veritas/attribute/comparable'
-
-require 'veritas/attribute/object'
-require 'veritas/attribute/numeric'
-
-require 'veritas/attribute/boolean'
-require 'veritas/attribute/class'
-require 'veritas/attribute/date'
-require 'veritas/attribute/date_time'
-require 'veritas/attribute/decimal'
-require 'veritas/attribute/float'
-require 'veritas/attribute/integer'
-require 'veritas/attribute/time'
-require 'veritas/attribute/string'
+# encoding: utf-8
 
 module Veritas
 
   # Abstract base class representing a type of data in a relation tuple
   class Attribute
+    extend Aliasable, Comparator
     include AbstractClass, Immutable, ::Comparable, Visitable
+
+    compare :name, :options
 
     # The attribute name
     #
@@ -34,6 +22,84 @@ module Veritas
     #
     # @api private
     attr_reader :options
+
+    # Hook called when class is inherited
+    #
+    # @param [Class] descendant
+    #   the class inheriting Attribute
+    #
+    # @return [self]
+    #
+    # @api private
+    def self.inherited(descendant)
+      superclass = self.superclass
+      superclass.inherited(descendant) if superclass.respond_to?(:descendants)
+      descendants.unshift(descendant)
+      self
+    end
+
+    # Return the descendants of this class
+    #
+    # @return [Array<Attribute>]
+    #
+    # @api private
+    def self.descendants
+      @descendants ||= []
+    end
+
+    # Coerce an object into an Attribute
+    #
+    # @param [Attribute, #to_ary, #to_sym] object
+    #   the object to coerce
+    #
+    # @return [Attribute]
+    #
+    # @api private
+    def self.coerce(object)
+      if object.kind_of?(Attribute)
+        object
+      else
+        name, type = object
+        klass = equal?(Attribute) ? Object : self
+        klass = const_get(type.name) if type
+        klass.new(name)
+      end
+    end
+
+    # Extract the attribute name from the object
+    #
+    # @param [#name, #to_ary, #to_sym] object
+    #   the object to extract a name from
+    #
+    # @return [Symbol]
+    #
+    # @api private
+    def self.name_from(object)
+      if object.respond_to?(:name)
+        object.name
+      elsif object.respond_to?(:to_ary)
+        object.to_ary.first
+      else
+        object.to_sym
+      end
+    end
+
+    # Infer the Attribute type from the operand
+    #
+    # @param [Object] operand
+    #
+    # @return [Class<Attribute>]
+    #
+    # @api private
+    def self.infer_type(operand)
+      case operand
+      when Attribute, Function, Aggregate then operand.type
+      when FalseClass                     then Boolean
+      else
+        type = operand.class
+        descendants.detect { |descendant| type <= descendant.primitive }
+      end
+    end
 
     # Initialize an Attribute
     #
@@ -78,9 +144,20 @@ module Veritas
     #
     # @return [Attribute]
     #
+    # @todo Make this have the same API as functions
+    #
     # @api public
     def rename(new_name)
       name.equal?(new_name) ? self : self.class.new(new_name, options)
+    end
+
+    # Return the type returned from #call
+    #
+    # @return [Class<Attribute>]
+    #
+    # @api public
+    def type
+      self.class
     end
 
     # Test if the attribute is required
@@ -152,38 +229,7 @@ module Veritas
     #
     # @api public
     def ==(other)
-      other = Attribute.coerce(other)
-      name.equal?(other.name) &&
-      options == other.options
-    end
-
-    # Compare the attribute with other attribute for equality
-    #
-    # @example
-    #   attribute.eql?(other)  # => true or false
-    #
-    # @param [Attribute] other
-    #   the other attribute to compare with
-    #
-    # @return [Boolean]
-    #
-    # @api public
-    def eql?(other)
-      instance_of?(other.class) &&
-      name.equal?(other.name)   &&
-      options.eql?(other.options)
-    end
-
-    # Return the hash of the attribute
-    #
-    # @example
-    #   hash = attribute.hash
-    #
-    # @return [Fixnum]
-    #
-    # @api public
-    def hash
-      self.class.hash ^ name.hash ^ options.hash
+      cmp?(__method__, coerce(other))
     end
 
     # Return a string representing the attribute
@@ -196,42 +242,6 @@ module Veritas
     # @api public
     def inspect
       "<#{self.class.name.sub(/\AVeritas::/, '')} name: #{name}>"
-    end
-
-    # Coerce an object into an Attribute
-    #
-    # @param [Attribute, #to_ary, #to_sym] object
-    #   the object to coerce
-    #
-    # @return [Attribute]
-    #
-    # @api private
-    def self.coerce(object)
-      if object.kind_of?(self)
-        object
-      else
-        name, type = object
-        klass = type.nil? ? Object : const_get(type.name)
-        klass.new(name)
-      end
-    end
-
-    # Extract the attribute name from the object
-    #
-    # @param [#name, #to_ary, #to_sym] object
-    #   the object to extract a name from
-    #
-    # @return [Symbol]
-    #
-    # @api private
-    def self.name_from(object)
-      if object.respond_to?(:name)
-        object.name
-      elsif object.respond_to?(:to_ary)
-        object.to_ary.first
-      else
-        object.to_sym
-      end
     end
 
   private
@@ -247,10 +257,19 @@ module Veritas
     #
     # @api private
     def valid_or_optional?(value)
-      value.nil? ? !required? : yield
+      value.nil? ? ! required? : yield
     end
 
-    memoize :hash
+    # Coerce the object into an Attribute
+    #
+    # @param [Attribute, Array] object
+    #
+    # @return [Attribute]
+    #
+    # @api private
+    def coerce(object)
+      Attribute.coerce(object)
+    end
 
   end # class Attribute
 end # module Veritas

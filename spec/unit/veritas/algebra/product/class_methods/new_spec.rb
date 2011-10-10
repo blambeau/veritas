@@ -1,16 +1,18 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Product.new' do
+describe Algebra::Product, '.new' do
   subject { object.new(left, right) }
 
   let(:header) { [ [ :id, Integer ] ]            }
   let(:left)   { Relation.new(header, [ [ 1 ] ]) }
-  let(:object) { Algebra::Product                }
+  let(:object) { described_class                 }
 
   context 'with relations having different headers' do
     let(:right) { Relation.new([ [ :number, Integer ] ], [ [ 2 ] ]) }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
   end
 
   context 'with relations having headers with common attributes' do

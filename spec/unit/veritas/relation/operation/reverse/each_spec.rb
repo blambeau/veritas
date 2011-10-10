@@ -1,15 +1,16 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Reverse#each' do
+describe Relation::Operation::Reverse, '#each' do
   subject { object.each { |tuple| yields << tuple } }
 
-  let(:klass)    { Relation::Operation::Reverse                                }
   let(:relation) { Relation.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ], [ 3 ] ]) }
-  let(:order)    { relation.order                                              }
-  let(:object)   { klass.new(order)                                            }
+  let(:order)    { relation.sort_by { |r| r.id }                               }
+  let(:object)   { described_class.new(order)                                  }
   let(:yields)   { []                                                          }
 
-  it_should_behave_like 'a command method'
+  it_should_behave_like 'an #each method'
 
   it 'yields each tuple in reverse order' do
     expect { subject }.to change { yields.dup }.

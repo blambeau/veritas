@@ -1,12 +1,14 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
 [ :eql?, :== ].each do |method|
-  describe "Veritas::Relation::Operation::Order::Direction##{method}" do
+  describe Relation::Operation::Order::Direction, "##{method}" do
     subject { object.send(method, other) }
 
-    let(:klass)     { Class.new(Relation::Operation::Order::Direction) }
-    let(:attribute) { Attribute::Integer.new(:id)                      }
-    let(:object)    { klass.new(attribute)                             }
+    let(:described_class) { Class.new(Relation::Operation::Order::Direction) }
+    let(:attribute)       { Attribute::Integer.new(:id)                      }
+    let(:object)          { described_class.new(attribute)                   }
 
     context 'with the same object' do
       let(:other) { object }
@@ -14,7 +16,7 @@ require 'spec_helper'
       it { should be(true) }
 
       it 'is symmetric' do
-        should == other.send(method, object)
+        should eql(other.send(method, object))
       end
     end
 
@@ -24,28 +26,28 @@ require 'spec_helper'
       it { should be(true) }
 
       it 'is symmetric' do
-        should == other.send(method, object)
+        should eql(other.send(method, object))
       end
     end
 
     context 'with an equivalent object of a subclass' do
-      let(:other) { Class.new(klass).new(attribute) }
+      let(:other) { Class.new(described_class).new(attribute) }
 
       it { should be(false) }
 
       it 'is symmetric' do
-        should == other.send(method, object)
+        should eql(other.send(method, object))
       end
     end
 
     context 'with an object having a different attribute' do
-      let(:other_attribute) { Attribute::String.new(:name) }
-      let(:other)           { klass.new(other_attribute)   }
+      let(:other_attribute) { Attribute::String.new(:name)         }
+      let(:other)           { described_class.new(other_attribute) }
 
       it { should be(false) }
 
       it 'is symmetric' do
-        should == other.send(method, object)
+        should eql(other.send(method, object))
       end
     end
   end

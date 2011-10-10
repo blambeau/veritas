@@ -1,16 +1,18 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Materialized.new' do
+describe Relation::Materialized, '.new' do
   let(:header) { Relation::Header.new([ [ :id, Integer ] ]) }
   let(:tuples) { [ [ 1 ] ]                                  }
-  let(:object) { Relation::Materialized                     }
+  let(:object) { described_class                            }
 
   context 'with directions' do
     subject { object.new(header, tuples, directions) }
 
     let(:directions) { [ header[:id] ] }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     its(:header) { should equal(header) }
 
@@ -22,7 +24,7 @@ describe 'Veritas::Relation::Materialized.new' do
   context 'with no directions' do
     subject { object.new(header, tuples) }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     its(:header) { should equal(header) }
 

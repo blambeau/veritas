@@ -1,10 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Attribute::Boolean#valid_value?' do
+describe Attribute::Boolean, '#valid_value?' do
   subject { object.valid_value?(value) }
 
-  let(:klass)  { Attribute::Boolean  }
-  let(:object) { klass.new(:boolean) }
+  let(:object) { described_class.new(:boolean) }
 
   context 'with a true value' do
     let(:value) { true }

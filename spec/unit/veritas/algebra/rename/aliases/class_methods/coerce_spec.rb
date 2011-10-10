@@ -1,11 +1,13 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Rename::Aliases.coerce' do
+describe Algebra::Rename::Aliases, '.coerce' do
   subject { object.coerce(attributes, aliases) }
 
   let(:attribute)  { Attribute::Integer.new(:id)         }
   let(:attributes) { Relation::Header.new([ attribute ]) }
-  let(:object)     { Algebra::Rename::Aliases            }
+  let(:object)     { described_class                     }
 
   context 'the aliases are an Alias object' do
     let(:old_attr) { attribute                        }
@@ -20,7 +22,7 @@ describe 'Veritas::Algebra::Rename::Aliases.coerce' do
     let(:new_attr) { :other_id                }
     let(:aliases)  { { old_attr => new_attr } }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     it { should == { attribute => attribute.rename(:other_id) } }
   end
@@ -30,7 +32,7 @@ describe 'Veritas::Algebra::Rename::Aliases.coerce' do
     let(:new_attr) { attribute.rename(:other_id) }
     let(:aliases)  { { old_attr => new_attr }    }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     it { should == { attribute => attribute.rename(:other_id) } }
   end
@@ -40,7 +42,7 @@ describe 'Veritas::Algebra::Rename::Aliases.coerce' do
     let(:new_attr) { :other_id                }
     let(:aliases)  { { old_attr => new_attr } }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     it { should == { attribute => attribute.rename(:other_id) } }
   end
@@ -50,7 +52,7 @@ describe 'Veritas::Algebra::Rename::Aliases.coerce' do
     let(:new_attr) { attribute.rename(:other_id) }
     let(:aliases)  { { old_attr => new_attr }    }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     it { should == { attribute => attribute.rename(:other_id) } }
   end

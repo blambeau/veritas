@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Order::Descending.reverse' do
+describe Relation::Operation::Order::Descending, '.reverse' do
   subject { object.reverse }
 
-  let(:object) { Relation::Operation::Order::Descending }
+  let(:object) { described_class }
 
   it { should equal(Relation::Operation::Order::Ascending) }
 end

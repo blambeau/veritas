@@ -1,18 +1,47 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Restriction#each' do
+describe Algebra::Restriction, '#each' do
   subject { object.each { |tuple| yields << tuple } }
 
-  let(:klass)    { Algebra::Restriction                          }
   let(:relation) { Relation.new([ [ :id, Integer ] ], [ [ 1 ] ]) }
-  let(:object)   { klass.new(relation, proc { true })            }
+  let(:object)   { described_class.new(relation, predicate)      }
   let(:yields)   { []                                            }
 
-  it_should_behave_like 'a command method'
+  context 'when predicate is a Proc' do
+    let(:predicate) { proc { true } }
 
-  it 'yields each tuple' do
-    expect { subject }.to change { yields.dup }.
-      from([]).
-      to([ [ 1 ] ])
+    it_should_behave_like 'an #each method'
+
+    it 'yields each tuple' do
+      expect { subject }.to change { yields.dup }.
+        from([]).
+        to([ [ 1 ] ])
+    end
+  end
+
+  context 'when predicate is a Function' do
+    let(:predicate) { Function::Proposition::Tautology.instance }
+
+    it_should_behave_like 'an #each method'
+
+    it 'yields each tuple' do
+      expect { subject }.to change { yields.dup }.
+        from([]).
+        to([ [ 1 ] ])
+    end
+  end
+
+  context 'when predicate is a value' do
+    let(:predicate) { true }
+
+    it_should_behave_like 'an #each method'
+
+    it 'yields each tuple' do
+      expect { subject }.to change { yields.dup }.
+        from([]).
+        to([ [ 1 ] ])
+    end
   end
 end

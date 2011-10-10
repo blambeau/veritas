@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
 
@@ -20,9 +22,10 @@ module Veritas
       #
       # @api public
       def each
+        return to_enum unless block_given?
         seen = {}
-        left.each  { |tuple| yield(seen[tuple] = tuple)           }
-        right.each { |tuple| yield(tuple) unless seen.key?(tuple) }
+        left.each  { |tuple| yield seen[tuple] = tuple           }
+        right.each { |tuple| yield tuple unless seen.key?(tuple) }
         self
       end
 

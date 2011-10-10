@@ -1,8 +1,12 @@
+# encoding: utf-8
+
 module Veritas
   class Attribute
 
     # Represents a Float value in a relation tuple
     class Float < Numeric
+
+      DEFAULT_SIZE = (-::Float::MAX..::Float::MAX).freeze
 
       # The Float primitive
       #

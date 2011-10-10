@@ -1,12 +1,13 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Rename::Aliases#==' do
+describe Algebra::Rename::Aliases, '#==' do
   subject { object == other }
 
-  let(:klass)     { Algebra::Rename::Aliases                     }
   let(:attribute) { Attribute::Integer.new(:id)                  }
   let(:aliases)   { { attribute => attribute.rename(:other_id) } }
-  let(:object)    { klass.new(aliases)                           }
+  let(:object)    { described_class.new(aliases)                 }
 
   context 'with the same object' do
     let(:other) { object }
@@ -14,7 +15,7 @@ describe 'Veritas::Algebra::Rename::Aliases#==' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
@@ -24,28 +25,28 @@ describe 'Veritas::Algebra::Rename::Aliases#==' do
     it { should be(true) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
   context 'with an equivalent object of a subclass' do
-    let(:other) { Class.new(klass).new(aliases) }
+    let(:other) { Class.new(described_class).new(aliases) }
 
     it { should be(true) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 
   context 'with an object having different aliases' do
     let(:other_aliases) { { attribute => attribute.rename(:another_id) } }
-    let(:other)         { klass.new(other_aliases)                       }
+    let(:other)         { described_class.new(other_aliases)             }
 
     it { should be(false) }
 
     it 'is symmetric' do
-      should == (other == object)
+      should eql(other == object)
     end
   end
 end

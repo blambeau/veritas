@@ -1,10 +1,12 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Tuple.coerce' do
+describe Tuple, '.coerce' do
   subject { object.coerce(header, argument) }
 
   let(:header) { Relation::Header.new([ [ :id, Integer ] ]) }
-  let(:object) { Tuple                                      }
+  let(:object) { described_class                            }
   let(:tuple)  { object.new(header, [ 1 ])                  }
 
   context 'when the argument is a Tuple' do
@@ -16,7 +18,7 @@ describe 'Veritas::Tuple.coerce' do
   context 'when the argument responds to #to_ary' do
     let(:argument) { [ 1 ] }
 
-    it { should be_kind_of(object) }
+    it { should be_instance_of(object) }
 
     it { should == tuple }
   end

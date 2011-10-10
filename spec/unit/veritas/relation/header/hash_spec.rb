@@ -1,13 +1,14 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Header#hash' do
+describe Relation::Header, '#hash' do
   subject { object.hash }
 
-  let(:klass)      { Relation::Header                }
-  let(:attributes) { [ Attribute::Integer.new(:id) ] }
-  let(:object)     { klass.new(attributes)           }
+  let(:attribute) { Attribute::Integer.new(:id)        }
+  let(:object)    { described_class.new([ attribute ]) }
 
   it_should_behave_like 'a hash method'
 
-  it { should == klass.hash ^ attributes.hash }
+  it { should == described_class.hash ^ Set[attribute].hash }
 end

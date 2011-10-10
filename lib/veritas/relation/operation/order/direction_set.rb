@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -5,23 +7,87 @@ module Veritas
 
         # A class that represents a tuple sort order for a set of attributes
         class DirectionSet
-          extend Aliasable
+          extend Aliasable, Comparator
           include Enumerable, Immutable
+
+          compare :to_ary
 
           inheritable_alias(:| => :union)
 
+          # Instantiate a DirectionSet
+          #
+          # @example
+          #   directions = DirectionSet.new(directions)
+          #
+          # @param [#to_ary] directions
+          #   optional attributes
+          #
+          # @return [undefined]
+          #
+          # @api public
+          def self.new(directions)
+            directions = coerce_directions(directions)
+            assert_unique_attributes(directions.map { |direction| direction.attribute })
+            super
+          end
+
+          # Coerce the attributes into an Array of Direction objects
+          #
+          # @param [Array<Direction>] attributes
+          #
+          # @return [Array<Direction>]
+          #
+          # @api private
+          def self.coerce_directions(directions)
+            Array(directions).map { |direction| Ascending.coerce(direction) }
+          end
+
+          # Assert the attributes are unique
+          #
+          # @param [Array<Attribute>] attributes
+          #
+          # @return [undefined]
+          #
+          # @raise [DuplicateAttributeError]
+          #   raised if the attributes are not unique
+          #
+          # @api private
+          def self.assert_unique_attributes(attributes)
+            duplicates = duplicate_attributes(attributes)
+            if duplicates
+              raise DuplicateAttributeError, "duplicate attributes: #{duplicates.join(', ')}"
+            end
+          end
+
+          # Returns the duplicate attribute names, if any
+          #
+          # @param [Array<Attribute>] attributes
+          #
+          # @return [Array<Symbol>]
+          #   returns an array of duplicate attributes
+          #
+          # @return [nil]
+          #   returns nil if there are no duplicate attributes
+          #
+          # @api private
+          def self.duplicate_attributes(attributes)
+            names = attributes.map { |attribute| attribute.name }
+            names.select! { |name| names.count(name) > 1 }
+            names.uniq!
+          end
+
+          private_class_method :coerce_directions, :assert_unique_attributes, :duplicate_attributes
+
           # Initialize a DirectionSet
           #
-          # @param [Array<Direction, Attribute>] attribute
-          #   the attribute to sort on
+          # @param [Array<Direction>] directions
+          #   the directions to sort with
           #
           # @return [undefined]
           #
           # @api private
           def initialize(directions)
-            @directions = directions.to_ary.map do |direction|
-              Ascending.coerce(direction)
-            end
+            @directions = directions
           end
 
           EMPTY = new([])
@@ -84,8 +150,9 @@ module Veritas
           # @return [self]
           #
           # @api public
-          def each(&block)
-            to_ary.each(&block)
+          def each
+            return to_enum unless block_given?
+            to_ary.each { |tuple| yield tuple }
             self
           end
 
@@ -147,36 +214,7 @@ module Veritas
           #
           # @api public
           def ==(other)
-            other = self.class.coerce(other)
-            to_ary == other.to_ary
-          end
-
-          # Compare the directions with other directions for equality
-          #
-          # @example
-          #   directions.eql?(other)  # => true or false
-          #
-          # @param [DirectionSet] other
-          #   the other directions to compare with
-          #
-          # @return [Boolean]
-          #
-          # @api public
-          def eql?(other)
-            instance_of?(other.class) &&
-            to_ary.eql?(other.to_ary)
-          end
-
-          # Return the hash of the aliases
-          #
-          # @example
-          #   hash = directions.hash
-          #
-          # @return [Fixnum]
-          #
-          # @api public
-          def hash
-            self.class.hash ^ to_ary.hash
+            cmp?(__method__, coerce(other))
           end
 
           # Test if there are no directions
@@ -233,11 +271,22 @@ module Veritas
           # @return [DirectionSet]
           #
           # @api private
+          def coerce(object)
+            self.class.coerce(object)
+          end
+
+          # Coerce directions into a DirectionSet
+          #
+          # @param [DirectionSet, Array<Direction, Attribute>]
+          #
+          # @return [DirectionSet]
+          #
+          # @api private
           def self.coerce(object)
             object.kind_of?(DirectionSet) ? object : new(object)
           end
 
-          memoize :hash
+          memoize :reverse
 
         end # class DirectionSet
       end # class Order

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -5,6 +7,8 @@ module Veritas
       # A class representing an offset relation
       class Offset < Relation
         include Unary
+
+        compare :operand, :offset
 
         # Return the offset
         #
@@ -15,6 +19,13 @@ module Veritas
         #
         # @api public
         attr_reader :offset
+
+        # The relation sort order
+        #
+        # @return [Operation::Order::DirectionSet]
+        #
+        # @api private
+        attr_reader :directions
 
         # Instantiate a new Offset
         #
@@ -62,7 +73,7 @@ module Veritas
         #
         # @api private
         def self.assert_valid_offset(offset)
-          if offset < 0
+          if offset.nil? || offset < 0
             raise InvalidOffsetError, "offset must be greater than or equal to 0, but was #{offset.inspect}"
           end
         end
@@ -81,7 +92,8 @@ module Veritas
         # @api private
         def initialize(operand, offset)
           super(operand)
-          @offset = offset.to_int
+          @offset     = offset.to_int
+          @directions = operand.directions
         end
 
         # Iterate over each tuple in the set
@@ -99,37 +111,11 @@ module Veritas
         #
         # @api public
         def each
+          return to_enum unless block_given?
           operand.each_with_index do |tuple, index|
             yield tuple if index >= @offset
           end
           self
-        end
-
-        # Compare the Offset with other relation for equality
-        #
-        # @example
-        #   offset_relation.eql?(other)  # => true or false
-        #
-        # @param [Relation] other
-        #   the other relation to compare with
-        #
-        # @return [Boolean]
-        #
-        # @api public
-        def eql?(other)
-          super && offset.eql?(other.offset)
-        end
-
-        # Return the hash of the offset
-        #
-        # @example
-        #   hash = offset.hash
-        #
-        # @return [Fixnum]
-        #
-        # @api public
-        def hash
-          super ^ offset.hash
         end
 
         module Methods
@@ -152,8 +138,6 @@ module Veritas
         end # module Methods
 
         Relation.class_eval { include Methods }
-
-        memoize :hash
 
       end # class Offset
     end # module Operation

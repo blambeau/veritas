@@ -1,11 +1,13 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Visitable#accept' do
+describe Visitable, '#accept' do
   subject { object.accept(visitor) }
 
-  let(:klass)   { Class.new { include Visitable } }
-  let(:visitor) { mock('Visitor', :visit => nil)  }
-  let(:object)  { klass.new                       }
+  let(:described_class) { Class.new { include Visitable } }
+  let(:visitor)         { mock('Visitor', :visit => nil)  }
+  let(:object)          { described_class.new             }
 
   it_should_behave_like 'a command method'
 

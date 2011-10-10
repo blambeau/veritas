@@ -1,10 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Attribute::String#valid_value?' do
+describe Attribute::String, '#valid_value?' do
   subject { object.valid_value?(value) }
 
-  let(:klass)  { Attribute::String                    }
-  let(:object) { klass.new(:string, :length => 1..50) }
+  let(:object) { described_class.new(:string, :min_length => 1, :max_length => 50) }
 
   context 'with a string value' do
     context 'that is within the allowed length range' do

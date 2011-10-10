@@ -1,13 +1,14 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Limit#limit' do
+describe Relation::Operation::Limit, '#limit' do
   subject { object.limit }
 
-  let(:klass)    { Relation::Operation::Limit                                  }
   let(:relation) { Relation.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ], [ 3 ] ]) }
-  let(:order)    { relation.order                                              }
+  let(:order)    { relation.sort_by { |r| r.id }                               }
   let(:limit)    { 1                                                           }
-  let(:object)   { klass.new(order, limit)                                     }
+  let(:object)   { described_class.new(order, limit)                           }
 
   it { should == limit }
 end

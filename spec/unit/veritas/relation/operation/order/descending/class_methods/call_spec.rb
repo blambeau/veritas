@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Order::Descending.call' do
+describe Relation::Operation::Order::Descending, '.call' do
   subject { object.call(left, right) }
 
-  let(:object) { Relation::Operation::Order::Descending }
+  let(:object) { described_class }
 
   context 'when left is equal to right' do
     let(:left)  { 1 }

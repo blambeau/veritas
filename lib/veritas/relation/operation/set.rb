@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   class Relation
     module Operation
@@ -15,6 +17,7 @@ module Veritas
         #
         # @api private
         def self.included(descendant)
+          super
           descendant.extend ClassMethods
           self
         end

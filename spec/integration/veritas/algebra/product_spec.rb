@@ -1,6 +1,8 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Product' do
+describe Algebra::Product do
   context 'Commutative property' do
     subject { left.product(right) }
 

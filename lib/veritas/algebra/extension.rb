@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
 
@@ -5,52 +7,14 @@ module Veritas
     class Extension < Relation
       include Relation::Operation::Unary
 
+      compare :operand, :extensions
+
       # The extensions for the relation
       #
       # @return [Hash]
       #
       # @api private
       attr_reader :extensions
-
-      # Instantiate a new Extension
-      #
-      # @example
-      #   extension = Extension.new(operand, extensions)
-      #
-      # @param [Relation] operand
-      #   the relation to extend
-      # @param [Hash] extensions
-      #   the extensions to add
-      #
-      # @return [Extension]
-      #
-      # @api public
-      def self.new(operand, extensions)
-        assert_unique_header(operand, extensions)
-        super
-      end
-
-      # Assert the extensions are uniquely named
-      #
-      # @param [Relation] operand
-      # @param [Hash] extensions
-      #
-      # @return [undefined]
-      #
-      # @raise [DuplicateHeaderName]
-      #   raised if an extensions is named the same as an existing
-      #   attribute in the header
-      #
-      # @api private
-      def self.assert_unique_header(operand, extensions)
-        header     = operand.header
-        duplicates = extensions.keys.select { |attribute| header[attribute] }.sort
-        if duplicates.any?
-          raise DuplicateHeaderName, "extensions with duplicate header names: #{duplicates.join(', ')}"
-        end
-      end
-
-      private_class_method :assert_unique_header
 
       # Initialize an Extension
       #
@@ -83,37 +47,11 @@ module Veritas
       #
       # @api public
       def each
+        return to_enum unless block_given?
         header     = self.header
         extensions = self.extensions.values
-        operand.each { |tuple| yield tuple.extend(header, extensions) }
+        operand.each { |operand_tuple| yield operand_tuple.extend(header, extensions) }
         self
-      end
-
-      # Compare the Extension with other relation for equality
-      #
-      # @example
-      #   extension.eql?(other)  # => true or false
-      #
-      # @param [Relation] other
-      #   the other relation to compare with
-      #
-      # @return [Boolean]
-      #
-      # @api public
-      def eql?(other)
-        super && extensions.eql?(other.extensions)
-      end
-
-      # Return the hash of the projection
-      #
-      # @example
-      #   hash = extension.hash
-      #
-      # @return [Fixnum]
-      #
-      # @api public
-      def hash
-        super ^ extensions.hash
       end
 
       module Methods
@@ -121,29 +59,27 @@ module Veritas
         # Return an extended relation
         #
         # @example
-        #   extension = relation.extend do |expression|
-        #     expression.add(:total, expression[:unit_price] * expression[:quantity])
+        #   extension = relation.extend do |context|
+        #     context.add(:total, context[:unit_price] * context[:quantity])
         #   end
         #
-        # @yield [expression]
-        #   Evaluate an extension expression
+        # @yield [function]
+        #   Evaluate an extension function
         #
-        # @yieldparam [Evaluator::Expression] expression
-        #   the context to evaluate the extension with
+        # @yieldparam [Evaluator::Context] context
+        #   the context to evaluate the function within
         #
         # @return [Extension]
         #
         # @api public
-        def extend(&block)
-          evaluator = Evaluator::Expression.new(&block)
-          Extension.new(self, evaluator.expressions)
+        def extend
+          context = Evaluator::Context.new(header) { |context| yield context }
+          Extension.new(self, context.functions)
         end
 
       end # module Methods
 
       Relation.class_eval { include Methods }
-
-      memoize :hash
 
     end # class Extension
   end # module Algebra

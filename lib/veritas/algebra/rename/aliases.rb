@@ -1,13 +1,50 @@
+# encoding: utf-8
+
 module Veritas
   module Algebra
     class Rename
 
       # Aliases that map old attributes to new renamed attributes
       class Aliases
-        extend Aliasable
+        extend Aliasable, Comparator
         include Immutable, Enumerable
 
+        compare :to_hash
+
         inheritable_alias(:| => :union)
+
+        # Instantiate new set of Aliases
+        #
+        # @example
+        #   aliases = Aliases.new(aliases)
+        #
+        # @param [Hash{Attribute => Attribute}] aliases
+        #
+        # @return [Aliases]
+        #
+        # @api public
+        def self.new(aliases)
+          assert_unique_aliases(aliases)
+          super
+        end
+
+        # Asset the aliases are unique
+        #
+        # @param [Hash{Attribute => Attribute}] aliases
+        #
+        # @return [undefined]
+        #
+        # @raise [DuplicateAliasError]
+        #   raised when the aliases are duplicates
+        #
+        # @api private
+        def self.assert_unique_aliases(aliases)
+          if aliases.values.uniq!
+            raise DuplicateAliasError, 'the aliases must be unique'
+          end
+        end
+
+        private_class_method :assert_unique_aliases
 
         # Initialize rename aliases
         #
@@ -72,16 +109,17 @@ module Veritas
         #
         # @yield [old, new]
         #
-        # @yieldparam [Attribute] old
+        # @yieldparam [Attribute] old_attribute
         #   the old attribute
-        # @yieldparam [Attribute] new
+        # @yieldparam [Attribute] new_attribute
         #   the new attribute
         #
         # @return [self]
         #
         # @api public
-        def each(&block)
-          @aliases.each(&block)
+        def each
+          return to_enum unless block_given?
+          @aliases.each { |old_attribute, new_attribute| yield old_attribute, new_attribute }
           self
         end
 
@@ -109,35 +147,7 @@ module Veritas
         #
         # @api public
         def ==(other)
-          to_hash == other.to_hash
-        end
-
-        # Compare the aliases with other aliases for equality
-        #
-        # @example
-        #   aliases.eql?(other)  # => true or false
-        #
-        # @param [Aliases] other
-        #   the other aliases to compare with
-        #
-        # @return [Boolean]
-        #
-        # @api public
-        def eql?(other)
-          instance_of?(other.class) &&
-          to_hash.eql?(other.to_hash)
-        end
-
-        # Return the hash of the aliases
-        #
-        # @example
-        #   hash = aliases.hash
-        #
-        # @return [Fixnum]
-        #
-        # @api public
-        def hash
-          self.class.hash ^ @aliases.hash
+          cmp?(__method__, other)
         end
 
         # Convert the aliases to a Hash
@@ -189,8 +199,6 @@ module Veritas
         end
 
         private_class_method :coerce_alias_pair
-
-        memoize :hash
 
       end # class Aliases
     end # class Rename

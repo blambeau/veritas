@@ -1,14 +1,16 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Relation::Operation::Limit::Methods#take' do
+describe Relation::Operation::Limit::Methods, '#take' do
   subject { object.take(limit) }
 
-  let(:klass)    { Relation                                               }
-  let(:limit)    { 1                                                      }
-  let(:relation) { klass.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ] ].each) }
-  let(:object)   { relation.order                                         }
+  let(:described_class) { Relation                                                         }
+  let(:limit)           { 1                                                                }
+  let(:relation)        { described_class.new([ [ :id, Integer ] ], [ [ 1 ], [ 2 ] ].each) }
+  let(:object)          { relation.sort_by { |r| r.id }                                    }
 
-  it { should be_kind_of(Relation::Operation::Limit) }
+  it { should be_instance_of(Relation::Operation::Limit) }
 
   its(:limit) { should == limit }
 

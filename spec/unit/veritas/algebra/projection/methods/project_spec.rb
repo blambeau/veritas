@@ -1,13 +1,15 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
-describe 'Veritas::Algebra::Projection::Methods#project' do
+describe Algebra::Projection::Methods, '#project' do
   subject { object.project(attributes) }
 
-  let(:klass)      { Relation                                                                       }
-  let(:attributes) { [ :id ]                                                                        }
-  let(:object)     { klass.new([ [ :id, Integer ], [ :name, String ] ], [ [ 1, 'Dan Kubb' ] ].each) }
+  let(:described_class) { Relation                                                                                 }
+  let(:attributes)      { [ :id ]                                                                                  }
+  let(:object)          { described_class.new([ [ :id, Integer ], [ :name, String ] ], [ [ 1, 'Dan Kubb' ] ].each) }
 
-  it { should be_kind_of(Algebra::Projection) }
+  it { should be_instance_of(Algebra::Projection) }
 
   its(:header) { should == [ [ :id, Integer ] ] }
 
